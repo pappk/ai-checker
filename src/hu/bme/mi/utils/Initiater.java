@@ -10,9 +10,7 @@ public class Initiater {
         listeners.add(toAdd);
     }
 
-    public void sayHello() {
-        System.out.println("Hello!!");
-
+    public void yourTurn() {
         // Notify everybody that may be interested.
         for (AgentsTurnListener hl : listeners)
             hl.yourTurn();

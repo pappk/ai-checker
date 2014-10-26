@@ -1,12 +1,10 @@
 package hu.bme.mi.dama;
 
-import hu.bme.mi.utils.GameEvent;
+import hu.bme.mi.utils.ErrorCode.ErrorCodes;
 import hu.bme.mi.utils.GameEvent.GameEvents;
 import hu.bme.mi.utils.GameException;
 import hu.bme.mi.utils.Initiater;
-import hu.bme.mi.utils.ErrorCode.ErrorCodes;
 
-import java.io.Console;
 import java.util.ArrayList;
 
 public class Board implements java.io.Serializable {
@@ -443,7 +441,7 @@ public class Board implements java.io.Serializable {
 		if(whiteCount > 0 && blackCount > 0 && canPlayerMove(whiteOnTurn)){
 			
 			if(whiteOnTurn == false){
-				initiater.sayHello();
+				initiater.yourTurn();
 			}
 			
 			//Nem ért még véget a játék

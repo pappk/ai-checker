@@ -51,7 +51,8 @@ public class Agent implements AgentsTurnListener{
 			}
 		}
 		try {
-			actual.moveFigureFromTo(possibleNextMoves.get(0).getFrom(), possibleNextMoves.get(0).getTo());
+			Movement maxHeuristicMovement = getMaxHeuristic(possibleNextMoves);
+			actual.moveFigureFromTo(maxHeuristicMovement.getFrom(), maxHeuristicMovement.getTo());
 		} catch (GameException ex){
 			System.err.println(ex);
 		}
@@ -67,6 +68,18 @@ public class Agent implements AgentsTurnListener{
 		int h = 0;
 		
 		return h;
+	}
+	
+	private Movement getMaxHeuristic(ArrayList<Movement> movementList){
+		Movement returnMovemnet = null;
+		
+		for (Movement movement : movementList) {
+			if(returnMovemnet == null || movement.getH() > returnMovemnet.getH()){
+				returnMovemnet = movement;
+			}
+		}
+		
+		return returnMovemnet;
 	}
 
 	@Override
