@@ -1,5 +1,7 @@
 package hu.bme.mi.utils;
 
+import com.sun.xml.internal.ws.api.model.ExceptionType;
+
 import hu.bme.mi.utils.ErrorCode.ErrorCodes;
 
 
@@ -11,6 +13,12 @@ public class GameException extends Exception{
 		super();
 		this.nextPlayer = null;
 		this.errorCode = null;
+	}
+	
+	public GameException(GameException ex){
+		super(ex.getMessage());
+		this.nextPlayer = ex.nextPlayer;
+		this.errorCode = ex.errorCode;
 	}
 	
 	public GameException(String message, Boolean nextPlayer){

@@ -62,8 +62,13 @@ public class Agent implements AgentsTurnListener {
 		}
 
 		Movement maxHeuristicMovement = getMaxHeuristic(possibleNextMoves);
-		controller.handlePlayerMovement(maxHeuristicMovement.getFrom(),
-				maxHeuristicMovement.getTo());
+		try {
+			controller.handlePlayerMovement(maxHeuristicMovement.getFrom(),
+					maxHeuristicMovement.getTo());
+		} catch (GameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

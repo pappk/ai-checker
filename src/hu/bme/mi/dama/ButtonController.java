@@ -52,10 +52,11 @@ public class ButtonController {
 	 *            Lépés innen
 	 * @param to
 	 *            Lépés ide
+	 * @throws GameException 
 	 */
-	public void handlePlayerMovement(Cell from, Cell to) {
+	public void handlePlayerMovement(Cell from, Cell to) throws GameException {
 		try {
-			
+
 			status = board.moveFigureFromTo(from, to);
 			view.setDefaultPaintAll();
 			bPrev = null;
@@ -66,9 +67,7 @@ public class ButtonController {
 				view.setWinnerLabel(status);
 			}
 		} catch (GameException ex) {
-			view.setErrorLabel(ex.getMessage());
-			view.setDefaultPaintAll();
-			bPrev = null;
+			throw new GameException(ex);
 		}
 	}
 
@@ -91,7 +90,13 @@ public class ButtonController {
 				} else {
 					if (board.getFigure(b.getCell()) == null) {
 						view.highlightCell(b.getCell());
-						handlePlayerMovement(bPrev.getCell(), b.getCell());
+						try {
+							handlePlayerMovement(bPrev.getCell(), b.getCell());
+						} catch (GameException ex) {
+							view.setErrorLabel(ex.getMessage());
+							view.setDefaultPaintAll();
+							bPrev = null;
+						}
 					}
 				}
 			}
