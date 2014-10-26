@@ -1,5 +1,7 @@
 package hu.bme.mi.dama;
 
+import hu.bme.mi.utils.GameEvent.GameEvents;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -183,10 +185,25 @@ public class ButtonView extends JFrame {
 
 	}
 	
-	public void setWinnerLabel(boolean c) {
-		if(c == true){
+	public void setWinnerLabel(GameEvents status) {
+		switch (status) {
+		case WINNERBLACK:
+			errorLabel.setText("A nyertes a Sötét!");
+			bottomPanel.setBackground(new Color(0x0000FF));
+			break;
+			
+		case WINNERWHITE:
 			errorLabel.setText("A nyertes a Világos!");
 			bottomPanel.setBackground(new Color(0x0000FF));
+			break;
+			
+		case TIE:
+			errorLabel.setText("Döntetlen!");
+			bottomPanel.setBackground(new Color(0x0000FF));
+			break;
+		
+		default:
+			break;
 		}
 	}
 

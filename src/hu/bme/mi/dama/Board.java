@@ -1,6 +1,9 @@
 package hu.bme.mi.dama;
 
+import hu.bme.mi.utils.GameEvent;
+import hu.bme.mi.utils.GameEvent.GameEvents;
 import hu.bme.mi.utils.GameException;
+import hu.bme.mi.utils.Initiater;
 import hu.bme.mi.utils.ErrorCode.ErrorCodes;
 
 import java.io.Console;
@@ -16,6 +19,7 @@ public class Board implements java.io.Serializable {
 	boolean loopAttack;
 	private int autoIncKey;
 	private Figure prevFigure;
+	private Initiater initiater;
 
 	public boolean getWhiteOnTurn() {
 		return whiteOnTurn;
@@ -32,7 +36,9 @@ public class Board implements java.io.Serializable {
 		whiteOnTurn = a;
 	}
 
-	public Board() {
+	public Board(Initiater initiater) {
+		this.initiater = initiater;
+		
 		reset();
 	}
 
@@ -79,9 +85,11 @@ public class Board implements java.io.Serializable {
 	 * @throws GameException
 	 */
 	// TODO: GameException dobása
-	public void moveFigureFromTo(Cell from, Cell to) throws GameException {
+	public GameEvents moveFigureFromTo(Cell from, Cell to) throws GameException {
 		System.out.println("from: " + from);
 		System.out.println("to: " + to);
+		
+		GameEvents gameStatus = GameEvents.KEEPGOING;
 
 		if (from.getColumn() < dimension && from.getRow() < dimension
 				&& to.getColumn() < dimension && to.getRow() < dimension) {
@@ -106,7 +114,8 @@ public class Board implements java.io.Serializable {
 						}
 
 						int moveResult = move(from, to);
-						if (moveResult != MoveResult.MR_OK && moveResult != MoveResult.MR_IFATTACKING) {
+						if (moveResult != MoveResult.MR_OK
+								&& moveResult != MoveResult.MR_IFATTACKING) {
 							throw new GameException("Rossz lépés",
 									getWhiteOnTurn(),
 									ErrorCodes.INVALIDMOVEMENT);
@@ -118,7 +127,7 @@ public class Board implements java.io.Serializable {
 								prevFigure = getFigure(to);
 							} else {
 								// A játékos köre befejezõdött
-								changePlayer();
+								gameStatus = changePlayer();
 							}
 
 						}
@@ -131,7 +140,7 @@ public class Board implements java.io.Serializable {
 
 				} else {
 					// Nincs kötelezõ ütési lehetõség a kiválasztott mezõrõl
-					ArrayList<Cell> possibleAttackCellsOther = getFigurePosibleAttack(getWhiteOnTurn());
+					ArrayList<Cell> possibleAttackCellsOther = getFigurePossibleAttack(getWhiteOnTurn());
 					if (possibleAttackCellsOther.size() > 0) {
 						// Más bábuval van kötelezõ ütés
 						throw new GameException(
@@ -140,13 +149,14 @@ public class Board implements java.io.Serializable {
 					} else {
 						// Új lépés, ami nem ütés
 						int moveResult = move(from, to);
-						if (moveResult != MoveResult.MR_OK && moveResult != MoveResult.MR_IFNOTATTACKING) {
+						if (moveResult != MoveResult.MR_OK
+								&& moveResult != MoveResult.MR_IFNOTATTACKING) {
 							throw new GameException("Rossz lépés",
 									getWhiteOnTurn(),
 									ErrorCodes.INVALIDMOVEMENT);
 						} else {
 							// A játékos köre befejezõdött
-							changePlayer();
+							gameStatus = changePlayer();
 						}
 					}
 				}
@@ -157,6 +167,8 @@ public class Board implements java.io.Serializable {
 		} else {
 			// Érvénytelen játéktér
 		}
+		
+		return gameStatus;
 	}
 
 	public Figure getFigure(Cell a) {
@@ -230,7 +242,7 @@ public class Board implements java.io.Serializable {
 	}
 
 	/**
-	 * Visszatér egy lsitával a lehetséges ütési lehetõségekkel egy adott
+	 * Visszatér egy listával a lehetséges ütési lehetõségekkel egy adott
 	 * celláról
 	 * 
 	 * @param a
@@ -280,6 +292,57 @@ public class Board implements java.io.Serializable {
 		}
 	}
 
+	/**
+	 * Visszatér egy listával a lehetséges lépési lehetõségekkel egy adott
+	 * celláról
+	 * 
+	 * @param a
+	 *            Forrás cella
+	 * @return Cellákat tartalmazó lista
+	 */
+	public ArrayList<Cell> getCellPossibleMove(Cell a) {
+		ArrayList<Cell> returnList = new ArrayList<Cell>();
+		if (getFigure(a) != null) {
+			Cell destCell = null;
+			ArrayList<Cell> list = new ArrayList<Cell>();
+			if (a.getRow() > 0) {
+				if (a.getColumn() > 0) {
+					destCell = new Cell(a.getRow() - 1, a.getColumn() - 1);
+					list.add(destCell);
+				}
+				if (a.getColumn() < dimension-1) {
+					destCell = new Cell(a.getRow() - 1, a.getColumn() + 1);
+					list.add(destCell);
+				}
+			}
+			if (a.getRow() < dimension-1) {
+				if (a.getColumn() > 0) {
+					destCell = new Cell(a.getRow() + 1, a.getColumn() - 1);
+					list.add(destCell);
+				}
+				if (a.getColumn() < dimension-1) {
+					destCell = new Cell(a.getRow() + 1, a.getColumn() + 1);
+					list.add(destCell);
+				}
+			}
+			for (int i = 0; i < list.size(); i++) {
+				if (getFigure(list.get(i)) == null
+						&& getFigure(a).possibleMove(a, list.get(i)) == MoveResult.MR_IFNOTATTACKING) {
+					returnList.add(list.get(i));
+				}
+			}
+			return returnList;
+		} else {
+			returnList.clear();
+			return returnList;
+		}
+	}
+
+	/**
+	 * Visszatér van-e kötelezõ ütések a forrás celláról
+	 * @param a	forrás cella
+	 * @return	boolean
+	 */
 	public boolean possibleAttack(Cell a) {
 		if (getCellPossibleAttack(a).size() != 0) {
 			return true;
@@ -287,12 +350,30 @@ public class Board implements java.io.Serializable {
 			return false;
 		}
 	}
+	
+	/**
+	 * Visszatér van-e lehetséges lépés a forrás celláról
+	 * @param a	forrás cella
+	 * @return	boolean
+	 */
+	public boolean possibleMove(Cell a) {
+		if (getCellPossibleMove(a).size() != 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	// a paraméter meghatározza melyik színû játékos bábujai között keresünk
-	public ArrayList<Cell> getFigurePosibleAttack(boolean aColor) {
+	/**
+	 * Azoknak a bábuknak a listájával tér vissza, amiknek kötelezõ ütése van
+	 * @param aColor	A játékos színét meghatározó paraméter
+	 * @return			lista
+	 */
+	public ArrayList<Cell> getFigurePossibleAttack(boolean aColor) {
 		ArrayList<Cell> attackArray = new ArrayList<Cell>();
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
 				if (figureArray[i][j] != null
 						&& figureArray[i][j].color == aColor) {
 					Cell aCell = new Cell(i, j);
@@ -303,6 +384,27 @@ public class Board implements java.io.Serializable {
 			}
 		}
 		return attackArray;
+	}
+	
+	/**
+	 * Azoknak a bábuknak a listájával tér vissza, amik szabadon léphet
+	 * @param aColor	A játékos színét meghatározó paraméter
+	 * @return			lista
+	 */
+	public ArrayList<Cell> getFigurePossibleMove(boolean aColor) {
+		ArrayList<Cell> moveArray = new ArrayList<Cell>();
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
+				if (figureArray[i][j] != null
+						&& figureArray[i][j].color == aColor) {
+					Cell aCell = new Cell(i, j);
+					if (possibleMove(aCell) == true) {
+						moveArray.add(aCell);
+					}
+				}
+			}
+		}
+		return moveArray;
 	}
 
 	/**
@@ -315,12 +417,62 @@ public class Board implements java.io.Serializable {
 		autoIncKey++;
 		return returnKey;
 	}
+	
+	/**
+	 * Megmondja, hogy egy adott játékos tud-e lépni vagy ütni az aktuális helyzetben
+	 * @param aColor	Játékos színét meghatározó paraméter
+	 * @return boolean
+	 */
+	public boolean canPlayerMove(boolean aColor){
+		if(getFigurePossibleAttack(whiteOnTurn).size() > 0
+			|| getFigurePossibleMove(whiteOnTurn).size() > 0){
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-	public void changePlayer() {
+	
+	public GameEvents changePlayer() {
 		setWhiteOnTurn(!whiteOnTurn);
 		prevFigure = null;
 		forcedAttack = false;
 		loopAttack = false;
+		
+		//Feltétel vizsgálat, hogy tart-e még a játék
+		if(whiteCount > 0 && blackCount > 0 && canPlayerMove(whiteOnTurn)){
+			
+			if(whiteOnTurn == false){
+				initiater.sayHello();
+			}
+			
+			//Nem ért még véget a játék
+			return GameEvents.KEEPGOING;
+		} else {
+			//A játék végetért
+			if(whiteCount == 0 && blackCount > 0){
+				//Fehér bábujai elfogytak, nyertes: fekete
+				return GameEvents.WINNERBLACK;
+			}
+			if(whiteCount > 0 && blackCount == 0){
+				//Fekete bábujai elfogytak, nyertes: fehér
+				return GameEvents.WINNERWHITE;
+			}
+			if(canPlayerMove(true) && !canPlayerMove(false)){
+				//Fehér még tud lépni, fekete nmár nem, nyertes: fehér
+				return GameEvents.WINNERWHITE;
+			}
+			if(!canPlayerMove(true) && canPlayerMove(false)){
+				//Fekete még tud lépni, fehér nmár nem, nyertes: fekete
+				return GameEvents.WINNERBLACK;
+			}
+			if(!canPlayerMove(true) && !canPlayerMove(false)){
+				//Egyik játékos se tud már lépni, nyertes: döntetlen
+				return GameEvents.TIE;
+			}
+		}
+		
+		return null;
 	}
 
 	/*
