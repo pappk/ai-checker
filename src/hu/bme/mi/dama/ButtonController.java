@@ -55,11 +55,9 @@ public class ButtonController {
 	 */
 	public void handlePlayerMovement(Cell from, Cell to) {
 		try {
-			view.highlightCell(b.getCell());
+			
 			status = board.moveFigureFromTo(from, to);
-
-			view.setDefaultPaint(bPrev.getCell());
-			view.setDefaultPaint(b.getCell());
+			view.setDefaultPaintAll();
 			bPrev = null;
 
 			view.reset();
@@ -69,8 +67,7 @@ public class ButtonController {
 			}
 		} catch (GameException ex) {
 			view.setErrorLabel(ex.getMessage());
-			view.setDefaultPaint(bPrev.getCell());
-			view.setDefaultPaint(b.getCell());
+			view.setDefaultPaintAll();
 			bPrev = null;
 		}
 	}
@@ -93,6 +90,7 @@ public class ButtonController {
 					bPrev = null;
 				} else {
 					if (board.getFigure(b.getCell()) == null) {
+						view.highlightCell(b.getCell());
 						handlePlayerMovement(bPrev.getCell(), b.getCell());
 					}
 				}

@@ -44,6 +44,14 @@ public class ButtonView extends JFrame {
 
 		buttonArray[aCell.getRow()][aCell.getColumn()].setBackground(bgColor);
 	}
+	
+	public void setDefaultPaintAll(){
+		for (int j = 0; j < board.dimension; j++) {
+			for (int i = 0; i < board.dimension; i++) {
+				setDefaultPaint(new Cell(i, j));
+			}
+		}
+	}
 
 	public void init() {
 		this.setLayout(new BorderLayout());
@@ -111,48 +119,6 @@ public class ButtonView extends JFrame {
 				}
 			}
 		});
-		/*saveAction.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO
-				String saveSource = (String) JOptionPane.showInputDialog(grid,
-						"A mentés neve:", "Mentés", JOptionPane.PLAIN_MESSAGE,
-						null, null, "");
-				if (saveSource != null) {
-					try {
-						java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(
-								new java.io.FileOutputStream(saveSource
-										+ ".tmp"));
-						out.writeObject(board);
-						out.close();
-						previousSource = saveSource;
-					} catch (Exception ee) {
-						JOptionPane.showMessageDialog(null,
-								"A megadott fájlnév hibás!", null, 1);
-						System.err.println(ee.toString());
-					}
-				}
-			}
-		});*/
-		/*loadAction.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO
-				String loadSource = (String) JOptionPane.showInputDialog(grid,
-						"A betöltendõ fájl:", "Betölstés",
-						JOptionPane.PLAIN_MESSAGE, null, null, previousSource);
-				if (loadSource != null) {
-					try {
-						java.io.ObjectInputStream in = new java.io.ObjectInputStream(
-								new java.io.FileInputStream(loadSource + ".tmp"));
-						Board b = (Board) in.readObject();
-						in.close();
-						board = b;
-						reset();
-					} catch (Exception ee) {
-						System.err.println(ee.toString());
-					}
-				}
-			}
-		});*/
 	}
 
 	public void reset() {
