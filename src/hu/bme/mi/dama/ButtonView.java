@@ -108,27 +108,33 @@ public class ButtonView extends JFrame {
 						JOptionPane.PLAIN_MESSAGE, null, possibilities, 0);
 				if (s != null) {
 					boolean starter;
-					board.clearBoard();
 					board.reset();
 					if (s.equals("Világos"))
 						starter = true;
 					else
 						starter = false;
 					board.setWhiteOnTurn(starter);
+					
 					reset();
+					
+					board.start();
 				}
 			}
 		});
 	}
 
 	public void reset() {
+		refreshAll();
+		delErrorLabel();
+		refreshColorLabel();
+	}
+	
+	public void refreshAll() {
 		for (int j = 0; j < board.dimension; j++) {
 			for (int i = 0; i < board.dimension; i++) {
 				refresh(new Cell(i, j));
 			}
 		}
-		delErrorLabel();
-		refreshColorLabel();
 	}
 
 	public void refresh(Cell aCell) {

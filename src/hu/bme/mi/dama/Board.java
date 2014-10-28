@@ -10,8 +10,6 @@ import java.util.ArrayList;
 public class Board implements java.io.Serializable {
 	final protected int dimension = 8;
 	protected Figure[][] figureArray = new Figure[dimension][dimension];
-	protected int whiteCount;
-	protected int blackCount;
 	protected boolean whiteOnTurn = true;
 	boolean forcedAttack;
 	boolean loopAttack;
@@ -19,7 +17,7 @@ public class Board implements java.io.Serializable {
 	private Figure prevFigure;
 	private Initiater initiater;
 	// az MI játékos színe
-	private boolean miPlayerColor;
+	private boolean aiPlayerColor;
 
 	public boolean getWhiteOnTurn() {
 		return whiteOnTurn;
@@ -38,17 +36,16 @@ public class Board implements java.io.Serializable {
 
 	public Board(Initiater initiater, boolean miPlayerColor) {
 		this.initiater = initiater;
-		this.miPlayerColor = miPlayerColor;
+		this.aiPlayerColor = miPlayerColor;
 
 		reset();
+		start();
 	}
 
 	public void clearBoard() {
 		forcedAttack = false;
 		loopAttack = false;
 		whiteOnTurn = true;
-		whiteCount = 0;
-		blackCount = 0;
 		autoIncKey = 0;
 		prevFigure = null;
 
@@ -68,14 +65,20 @@ public class Board implements java.io.Serializable {
 			for (int j = 0; j < 8; j++) {
 				if ((j + i) % 2 != 0) {
 					figureArray[i][j] = new Figure(getAutoIncKey(), false);
-					blackCount++;
 					figureArray[7 - i][7 - j] = new Figure(getAutoIncKey(),
 							true);
-					whiteCount++;
 				}
 			}
 		}
-
+	}
+	
+	/**
+	 * Ha az AI játékos kezd, akkor értesíti a kezdésrõl
+	 */
+	public void start(){
+		if(initiater != null && whiteOnTurn == aiPlayerColor){
+			initiater.yourTurn();
+		}
 	}
 
 	/**
@@ -169,9 +172,12 @@ public class Board implements java.io.Serializable {
 		}
 
 		// MI játékos értesítése ütéssorozat esetén
-		if (initiater != null && loopAttack && whiteOnTurn == miPlayerColor) {
+		/*if (initiater != null && loopAttack && whiteOnTurn == miPlayerColor) {
 			initiater.yourTurn();
-		}
+		}*/
+		/*if (loopAttack && whiteOnTurn == miPlayerColor) {
+			initiater.yourTurn();
+		}*/
 
 		return gameStatus;
 	}
@@ -181,10 +187,6 @@ public class Board implements java.io.Serializable {
 	}
 
 	public void removeFigure(Cell a) {
-		if (getFigure(a).color == true)
-			whiteCount--;
-		else
-			blackCount--;
 		figureArray[a.getRow()][a.getColumn()] = null;
 	}
 
@@ -461,14 +463,20 @@ public class Board implements java.io.Serializable {
 		prevFigure = null;
 		forcedAttack = false;
 		loopAttack = false;
-
+		
+		int whiteCount = getFigureCount(true);
+		int blackCount = getFigureCount(false);
+		
+		System.out.println("fehér: "+whiteCount);
+		System.out.println("fekete: "+blackCount);
+		
 		// Feltétel vizsgálat, hogy tart-e még a játék
 		if (whiteCount > 0 && blackCount > 0 && canPlayerMove(whiteOnTurn)) {
 
 			// MI játékos értesítése
-			if (initiater != null && whiteOnTurn == miPlayerColor) {
+			/*if (initiater != null && whiteOnTurn == miPlayerColor) {
 				initiater.yourTurn();
-			}
+			}*/
 
 			// Nem ért még véget a játék
 			return GameEvents.KEEPGOING;
@@ -507,14 +515,12 @@ public class Board implements java.io.Serializable {
 	public Board getBoardClone() {
 		// Másolat készítése a tábláról úgy, hogy ne érje el az értesítés küldõ
 		// interfészt
-		Board newBoard = new Board(null, miPlayerColor);
+		Board newBoard = new Board(null, aiPlayerColor);
 		newBoard.autoIncKey = autoIncKey;
-		newBoard.blackCount = blackCount;
 		newBoard.figureArray = figureArray.clone();
 		newBoard.forcedAttack = forcedAttack;
 		newBoard.loopAttack = loopAttack;
 		newBoard.prevFigure = null;
-		newBoard.whiteCount = whiteCount;
 		newBoard.whiteOnTurn = whiteOnTurn;
 
 		return newBoard;
@@ -553,16 +559,17 @@ public class Board implements java.io.Serializable {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Meghatározza, hogy addot celláról addott cellára lehetséges-e az ütes
+	 * 
 	 * @param from
 	 * @param to
 	 * @return
 	 */
-	public boolean possibleAttackFromTo(Cell from, Cell to){
+	public boolean possibleAttackFromTo(Cell from, Cell to) {
 		ArrayList<Cell> attackCells = getCellPossibleAttack(from);
-		if(attackCells.contains(to)){
+		if (attackCells.contains(to)) {
 			return true;
 		} else {
 			return false;
@@ -578,20 +585,22 @@ public class Board implements java.io.Serializable {
 	public boolean isFigureAttacked(Cell cell) {
 		Figure figure = getFigure(cell);
 		if (figure != null) {
-			//Szélrózsa alapú elnevezés
-			Cell NW = new Cell(cell.getColumn()-1, cell.getRow()-1);
-			Cell NE = new Cell(cell.getColumn()+1, cell.getRow()-1);
-			Cell SW = new Cell(cell.getColumn()-1, cell.getRow()+1);
-			Cell SE = new Cell(cell.getColumn()+1, cell.getRow()+1);
-			
-			if(isCellValid(NW) && isCellValid(SE)){
-				return (possibleAttackFromTo(NW, SE) || possibleAttackFromTo(SE, NW));
+			// Szélrózsa alapú elnevezés
+			Cell NW = new Cell(cell.getColumn() - 1, cell.getRow() - 1);
+			Cell NE = new Cell(cell.getColumn() + 1, cell.getRow() - 1);
+			Cell SW = new Cell(cell.getColumn() - 1, cell.getRow() + 1);
+			Cell SE = new Cell(cell.getColumn() + 1, cell.getRow() + 1);
+
+			if (isCellValid(NW) && isCellValid(SE)) {
+				return (possibleAttackFromTo(NW, SE) || possibleAttackFromTo(
+						SE, NW));
 			}
-			if(isCellValid(NE) && isCellValid(SW)){
-				return (possibleAttackFromTo(NE, SW) || possibleAttackFromTo(SW, NE));
+			if (isCellValid(NE) && isCellValid(SW)) {
+				return (possibleAttackFromTo(NE, SW) || possibleAttackFromTo(
+						SW, NE));
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -607,15 +616,22 @@ public class Board implements java.io.Serializable {
 	 * @return
 	 */
 	public int getFigureCount(boolean color) {
-		if (color == true) {
-			return whiteCount;
-		} else {
-			return blackCount;
+		int figureCount = 0;
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
+				Figure figure = getFigure(new Cell(i, j));
+				if (figure != null && figure.getColor() == color) {
+					figureCount++;
+				}
+			}
 		}
+		return figureCount;
+
 	}
 
 	/**
 	 * Visszatér egy játékos összes megtámadott bábujának pozíciójával
+	 * 
 	 * @param color
 	 * @return
 	 */
@@ -623,7 +639,7 @@ public class Board implements java.io.Serializable {
 		ArrayList<Cell> figures = getAllFigureCellsPlayer(color);
 		ArrayList<Cell> attackedFigures = new ArrayList<>();
 		for (Cell cell : figures) {
-			if(isFigureAttacked(cell)){
+			if (isFigureAttacked(cell)) {
 				attackedFigures.add(cell);
 			}
 		}
@@ -647,8 +663,8 @@ public class Board implements java.io.Serializable {
 	}
 
 	public void draw() {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
 				if (figureArray[i][j] != null)
 					System.out.print(figureArray[i][j] + " ");
 				else {
@@ -660,7 +676,7 @@ public class Board implements java.io.Serializable {
 			}
 			System.out.print(i + "\n");
 		}
-		for (int j = 0; j < 8; j++)
+		for (int j = 0; j < dimension; j++)
 			System.out.print(j + " ");
 	}
 }

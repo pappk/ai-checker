@@ -19,9 +19,10 @@ public class ButtonController {
 	Initiater initiater = new Initiater();
 	Agent agent = null;
 	GameEvents status = null;
+	boolean aiPlayerColor = false;
 
 	public ButtonController() {
-		board = new Board(initiater, false);
+		board = new Board(initiater, aiPlayerColor);
 		view = new ButtonView(board);
 		view.setVisible(true);
 		agent = new Agent(this, false);
@@ -60,11 +61,15 @@ public class ButtonController {
 			status = board.moveFigureFromTo(from, to);
 			view.setDefaultPaintAll();
 			bPrev = null;
-
 			view.reset();
+			
 
 			if (status != GameEvents.KEEPGOING) {
 				view.setWinnerLabel(status);
+			} else {
+				if (board.getWhiteOnTurn() == aiPlayerColor) {
+					initiater.yourTurn();
+				}
 			}
 		} catch (GameException ex) {
 			throw new GameException(ex);
