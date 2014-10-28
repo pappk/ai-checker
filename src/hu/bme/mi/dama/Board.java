@@ -18,7 +18,7 @@ public class Board implements java.io.Serializable {
 	private int autoIncKey;
 	private Figure prevFigure;
 	private Initiater initiater;
-	//az MI játékos színe
+	// az MI játékos színe
 	private boolean miPlayerColor;
 
 	public boolean getWhiteOnTurn() {
@@ -39,7 +39,7 @@ public class Board implements java.io.Serializable {
 	public Board(Initiater initiater, boolean miPlayerColor) {
 		this.initiater = initiater;
 		this.miPlayerColor = miPlayerColor;
-		
+
 		reset();
 	}
 
@@ -88,7 +88,7 @@ public class Board implements java.io.Serializable {
 	public GameEvents moveFigureFromTo(Cell from, Cell to) throws GameException {
 		System.out.println("from: " + from);
 		System.out.println("to: " + to);
-		
+
 		GameEvents gameStatus = GameEvents.KEEPGOING;
 
 		if (from.getColumn() < dimension && from.getRow() < dimension
@@ -167,12 +167,12 @@ public class Board implements java.io.Serializable {
 		} else {
 			// Érvénytelen játéktér
 		}
-		
-		//MI játékos értesítése ütéssorozat esetén
-		if(loopAttack && whiteOnTurn == miPlayerColor){	
+
+		// MI játékos értesítése ütéssorozat esetén
+		if (initiater != null && loopAttack && whiteOnTurn == miPlayerColor) {
 			initiater.yourTurn();
 		}
-		
+
 		return gameStatus;
 	}
 
@@ -315,17 +315,17 @@ public class Board implements java.io.Serializable {
 					destCell = new Cell(a.getRow() - 1, a.getColumn() - 1);
 					list.add(destCell);
 				}
-				if (a.getColumn() < dimension-1) {
+				if (a.getColumn() < dimension - 1) {
 					destCell = new Cell(a.getRow() - 1, a.getColumn() + 1);
 					list.add(destCell);
 				}
 			}
-			if (a.getRow() < dimension-1) {
+			if (a.getRow() < dimension - 1) {
 				if (a.getColumn() > 0) {
 					destCell = new Cell(a.getRow() + 1, a.getColumn() - 1);
 					list.add(destCell);
 				}
-				if (a.getColumn() < dimension-1) {
+				if (a.getColumn() < dimension - 1) {
 					destCell = new Cell(a.getRow() + 1, a.getColumn() + 1);
 					list.add(destCell);
 				}
@@ -345,8 +345,10 @@ public class Board implements java.io.Serializable {
 
 	/**
 	 * Visszatér van-e kötelezõ ütések a forrás celláról
-	 * @param a	forrás cella
-	 * @return	boolean
+	 * 
+	 * @param a
+	 *            forrás cella
+	 * @return boolean
 	 */
 	public boolean possibleAttack(Cell a) {
 		if (getCellPossibleAttack(a).size() != 0) {
@@ -355,11 +357,13 @@ public class Board implements java.io.Serializable {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Visszatér van-e lehetséges lépés a forrás celláról
-	 * @param a	forrás cella
-	 * @return	boolean
+	 * 
+	 * @param a
+	 *            forrás cella
+	 * @return boolean
 	 */
 	public boolean possibleMove(Cell a) {
 		if (getCellPossibleMove(a).size() != 0) {
@@ -372,8 +376,10 @@ public class Board implements java.io.Serializable {
 	// a paraméter meghatározza melyik színû játékos bábujai között keresünk
 	/**
 	 * Azoknak a bábuknak a listájával tér vissza, amiknek kötelezõ ütése van
-	 * @param aColor	A játékos színét meghatározó paraméter
-	 * @return			lista
+	 * 
+	 * @param aColor
+	 *            A játékos színét meghatározó paraméter
+	 * @return lista
 	 */
 	public ArrayList<Cell> getFigurePossibleAttack(boolean aColor) {
 		ArrayList<Cell> attackArray = new ArrayList<Cell>();
@@ -390,11 +396,14 @@ public class Board implements java.io.Serializable {
 		}
 		return attackArray;
 	}
-	
+
 	/**
-	 * Azoknak a bábuknak a listájával tér vissza, amik szabadon léphet
-	 * @param aColor	A játékos színét meghatározó paraméter
-	 * @return			lista
+	 * Azoknak a bábuknak a listájával tér vissza, amik szabadon léphetnek Nem
+	 * tartalmazza azokat a figurákat, amiknek kötelezõ ütése van
+	 * 
+	 * @param aColor
+	 *            A játékos színét meghatározó paraméter
+	 * @return lista
 	 */
 	public ArrayList<Cell> getFigurePossibleMove(boolean aColor) {
 		ArrayList<Cell> moveArray = new ArrayList<Cell>();
@@ -403,7 +412,8 @@ public class Board implements java.io.Serializable {
 				if (figureArray[i][j] != null
 						&& figureArray[i][j].color == aColor) {
 					Cell aCell = new Cell(i, j);
-					if (possibleMove(aCell) == true) {
+					if (possibleAttack(aCell) == false
+							&& possibleMove(aCell) == true) {
 						moveArray.add(aCell);
 					}
 				}
@@ -422,26 +432,28 @@ public class Board implements java.io.Serializable {
 		autoIncKey++;
 		return returnKey;
 	}
-	
+
 	/**
-	 * Megmondja, hogy egy adott játékos tud-e lépni vagy ütni az aktuális helyzetben
-	 * @param aColor	Játékos színét meghatározó paraméter
+	 * Megmondja, hogy egy adott játékos tud-e lépni vagy ütni az aktuális
+	 * helyzetben
+	 * 
+	 * @param aColor
+	 *            Játékos színét meghatározó paraméter
 	 * @return boolean
 	 */
-	public boolean canPlayerMove(boolean aColor){
-		if(getFigurePossibleAttack(whiteOnTurn).size() > 0
-			|| getFigurePossibleMove(whiteOnTurn).size() > 0){
+	public boolean canPlayerMove(boolean aColor) {
+		if (getFigurePossibleAttack(whiteOnTurn).size() > 0
+				|| getFigurePossibleMove(whiteOnTurn).size() > 0) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	
 	/**
-	 * Megvizsgálja, hogy nem ért-e véget a játék
-	 * ha nem, akkor a következõ játékosra helyezi sort
-	 * ha MI játékoson van sor, akkor értesíti
+	 * Megvizsgálja, hogy nem ért-e véget a játék ha nem, akkor a következõ
+	 * játékosra helyezi sort ha MI játékoson van sor, akkor értesíti
+	 * 
 	 * @return
 	 */
 	public GameEvents changePlayer() {
@@ -449,42 +461,173 @@ public class Board implements java.io.Serializable {
 		prevFigure = null;
 		forcedAttack = false;
 		loopAttack = false;
-		
-		//Feltétel vizsgálat, hogy tart-e még a játék
-		if(whiteCount > 0 && blackCount > 0 && canPlayerMove(whiteOnTurn)){
-			
-			//MI játékos értesítése
-			if(whiteOnTurn == miPlayerColor){
+
+		// Feltétel vizsgálat, hogy tart-e még a játék
+		if (whiteCount > 0 && blackCount > 0 && canPlayerMove(whiteOnTurn)) {
+
+			// MI játékos értesítése
+			if (initiater != null && whiteOnTurn == miPlayerColor) {
 				initiater.yourTurn();
 			}
-			
-			//Nem ért még véget a játék
+
+			// Nem ért még véget a játék
 			return GameEvents.KEEPGOING;
 		} else {
-			//A játék végetért
-			if(whiteCount == 0 && blackCount > 0){
-				//Fehér bábujai elfogytak, nyertes: fekete
+			// A játék végetért
+			if (whiteCount == 0 && blackCount > 0) {
+				// Fehér bábujai elfogytak, nyertes: fekete
 				return GameEvents.WINNERBLACK;
 			}
-			if(whiteCount > 0 && blackCount == 0){
-				//Fekete bábujai elfogytak, nyertes: fehér
+			if (whiteCount > 0 && blackCount == 0) {
+				// Fekete bábujai elfogytak, nyertes: fehér
 				return GameEvents.WINNERWHITE;
 			}
-			if(canPlayerMove(true) && !canPlayerMove(false)){
-				//Fehér még tud lépni, fekete nmár nem, nyertes: fehér
+			if (canPlayerMove(true) && !canPlayerMove(false)) {
+				// Fehér még tud lépni, fekete nmár nem, nyertes: fehér
 				return GameEvents.WINNERWHITE;
 			}
-			if(!canPlayerMove(true) && canPlayerMove(false)){
-				//Fekete még tud lépni, fehér nmár nem, nyertes: fekete
+			if (!canPlayerMove(true) && canPlayerMove(false)) {
+				// Fekete még tud lépni, fehér nmár nem, nyertes: fekete
 				return GameEvents.WINNERBLACK;
 			}
-			if(!canPlayerMove(true) && !canPlayerMove(false)){
-				//Egyik játékos se tud már lépni, nyertes: döntetlen
+			if (!canPlayerMove(true) && !canPlayerMove(false)) {
+				// Egyik játékos se tud már lépni, nyertes: döntetlen
 				return GameEvents.TIE;
 			}
 		}
-		
+
 		return null;
+	}
+
+	/**
+	 * Vissaztér a pálya másolatával
+	 * 
+	 * @return
+	 */
+	public Board getBoardClone() {
+		// Másolat készítése a tábláról úgy, hogy ne érje el az értesítés küldõ
+		// interfészt
+		Board newBoard = new Board(null, miPlayerColor);
+		newBoard.autoIncKey = autoIncKey;
+		newBoard.blackCount = blackCount;
+		newBoard.figureArray = figureArray.clone();
+		newBoard.forcedAttack = forcedAttack;
+		newBoard.loopAttack = loopAttack;
+		newBoard.prevFigure = null;
+		newBoard.whiteCount = whiteCount;
+		newBoard.whiteOnTurn = whiteOnTurn;
+
+		return newBoard;
+	}
+
+	/**
+	 * Visszatér egy játékos összes figurájának pozíciójával
+	 * 
+	 * @param aColor
+	 * @return
+	 */
+	public ArrayList<Cell> getAllFigureCellsPlayer(boolean aColor) {
+		ArrayList<Cell> figureCells = new ArrayList<>();
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
+				if (figureArray[i][j] != null
+						&& figureArray[i][j].color == aColor) {
+					figureCells.add(new Cell(i, j));
+				}
+			}
+		}
+		return figureCells;
+	}
+
+	/**
+	 * Meghatározza, hogy adott cella értelmezhetõ-e a játéktérben
+	 * 
+	 * @param cell
+	 * @return
+	 */
+	public boolean isCellValid(Cell cell) {
+		if (cell.getRow() > 0 && cell.getRow() < dimension
+				&& cell.getColumn() > 0 && cell.getColumn() < dimension) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Meghatározza, hogy addot celláról addott cellára lehetséges-e az ütes
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public boolean possibleAttackFromTo(Cell from, Cell to){
+		ArrayList<Cell> attackCells = getCellPossibleAttack(from);
+		if(attackCells.contains(to)){
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Meghatározza, hogy az adott cellán álló bábú támadás alatt áll-e
+	 * 
+	 * @param cell
+	 * @return
+	 */
+	public boolean isFigureAttacked(Cell cell) {
+		Figure figure = getFigure(cell);
+		if (figure != null) {
+			//Szélrózsa alapú elnevezés
+			Cell NW = new Cell(cell.getColumn()-1, cell.getRow()-1);
+			Cell NE = new Cell(cell.getColumn()+1, cell.getRow()-1);
+			Cell SW = new Cell(cell.getColumn()-1, cell.getRow()+1);
+			Cell SE = new Cell(cell.getColumn()+1, cell.getRow()+1);
+			
+			if(isCellValid(NW) && isCellValid(SE)){
+				return (possibleAttackFromTo(NW, SE) || possibleAttackFromTo(SE, NW));
+			}
+			if(isCellValid(NE) && isCellValid(SW)){
+				return (possibleAttackFromTo(NE, SW) || possibleAttackFromTo(SW, NE));
+			}
+		}
+		
+		return false;
+	}
+
+	/*
+	 * Analizáló függvények adott játékos szemszögébõl vizsgálja meg a tábla
+	 * aktuális állapotát
+	 */
+
+	/**
+	 * Megadja egy játékos figuráinak számát
+	 * 
+	 * @param color
+	 * @return
+	 */
+	public int getFigureCount(boolean color) {
+		if (color == true) {
+			return whiteCount;
+		} else {
+			return blackCount;
+		}
+	}
+
+	/**
+	 * Visszatér egy játékos összes megtámadott bábujának pozíciójával
+	 * @param color
+	 * @return
+	 */
+	public ArrayList<Cell> getAttackedFigureCells(boolean color) {
+		ArrayList<Cell> figures = getAllFigureCellsPlayer(color);
+		ArrayList<Cell> attackedFigures = new ArrayList<>();
+		for (Cell cell : figures) {
+			if(isFigureAttacked(cell)){
+				attackedFigures.add(cell);
+			}
+		}
+		return attackedFigures;
 	}
 
 	/*

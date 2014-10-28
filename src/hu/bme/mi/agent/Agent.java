@@ -8,6 +8,13 @@ import hu.bme.mi.utils.AgentsTurnListener;
 
 import java.util.ArrayList;
 
+/*
+ * FONTOS
+ * Az {actual} változó pointer a tényleges táblára.
+ * Nem szabad rajta módosítást végezni, kivéve a végleges lépést.
+ * 
+ */
+
 public class Agent implements AgentsTurnListener {
 	private Board actual;
 	private boolean color;
@@ -33,19 +40,22 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * MI játékos lépése
-	 * kiszámolja a lehetséges lépések heurisztikáját és kiválasztja a legjobbat,
-	 * majd elvégi a lépést a táblán
+	 * color színû játékos legoptimálisabb lépésvel visszatérõ függény
+	 * 
+	 * @param color	Játékos színe
+	 * @param board	aktuális játékállapot
+	 * @return
 	 */
-	private void nextMove() {
+	private Movement getNextMovement(boolean color, Board board) {
 		ArrayList<Movement> possibleNextMoves = new ArrayList<>();
+		Board workingBoard = board.getBoardClone();
 
-		ArrayList<Cell> possibleAttackCells = actual
+		ArrayList<Cell> possibleAttackCells = workingBoard
 				.getFigurePossibleAttack(color);
 		if (possibleAttackCells.size() > 0) {
 			// Van kötelezõ ütés
 			for (Cell cell : possibleAttackCells) {
-				ArrayList<Cell> attackTargetCell = actual
+				ArrayList<Cell> attackTargetCell = workingBoard
 						.getCellPossibleAttack(cell);
 				for (Cell cell2 : attackTargetCell) {
 					possibleNextMoves.add(new Movement(cell, cell2,
@@ -54,10 +64,10 @@ public class Agent implements AgentsTurnListener {
 			}
 		} else {
 			// Szabad lépés
-			ArrayList<Cell> possibleMoveCells = actual
+			ArrayList<Cell> possibleMoveCells = workingBoard
 					.getFigurePossibleMove(color);
 			for (Cell cell : possibleMoveCells) {
-				ArrayList<Cell> moveTargetCell = actual
+				ArrayList<Cell> moveTargetCell = workingBoard
 						.getCellPossibleMove(cell);
 				for (Cell cell2 : moveTargetCell) {
 					possibleNextMoves.add(new Movement(cell, cell2,
@@ -66,7 +76,17 @@ public class Agent implements AgentsTurnListener {
 			}
 		}
 
-		Movement maxHeuristicMovement = getMaxHeuristic(possibleNextMoves);
+		workingBoard = null;
+		return getMaxHeuristic(possibleNextMoves);
+
+	}
+
+	/**
+	 * MI játékos lépése kiszámolja a lehetséges lépések heurisztikáját és
+	 * kiválasztja a legjobbat, majd elvégi a lépést a táblán
+	 */
+	private void nextMove() {
+		Movement maxHeuristicMovement = getNextMovement(color, actual);
 		try {
 			controller.handlePlayerMovement(maxHeuristicMovement.getFrom(),
 					maxHeuristicMovement.getTo());
@@ -78,7 +98,9 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * Támadás esetén a paraméterként megadott lépés minõségét osztályozó függvény
+	 * Támadás esetén a paraméterként megadott lépés minõségét osztályozó
+	 * függvény
+	 * 
 	 * @param from
 	 * @param to
 	 * @return heurisztika
@@ -90,7 +112,9 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * Szabad lépés esetén a paraméterként megadott lépés minõséégt osztályozó függvény
+	 * Szabad lépés esetén a paraméterként megadott lépés minõséégt osztályozó
+	 * függvény
+	 * 
 	 * @param from
 	 * @param to
 	 * @return heurisztika
@@ -100,23 +124,11 @@ public class Agent implements AgentsTurnListener {
 
 		return h;
 	}
-	
-	/**
-	 * Heurisztika függvény, lépés pozíciója alapján
-	 * @param from
-	 * @param to
-	 * @return
-	 */
-	private double distanceFromEdge(Cell from, Cell to){
-		double h = 0;
-		
-		
 
-		return h;
-	}
 
 	/**
 	 * Lépések listájából kiválasztja a legnagyonn heurisztikával rendelkezõt
+	 * 
 	 * @param movementList
 	 * @return
 	 */
