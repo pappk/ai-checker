@@ -17,7 +17,7 @@ public class Agent implements AgentsTurnListener {
 	 * Mesterséges intelligenciát reprezentáló osztály
 	 * 
 	 * @param board
-	 *            A közös valóságalap a tábla aktuális állapota
+	 *            A közös valóságalap a tábla aktuális állapotára mutató pointer
 	 * @param color
 	 *            Az MI játékos színe
 	 */
@@ -32,6 +32,11 @@ public class Agent implements AgentsTurnListener {
 		this.color = color;
 	}
 
+	/**
+	 * MI játékos lépése
+	 * kiszámolja a lehetséges lépések heurisztikáját és kiválasztja a legjobbat,
+	 * majd elvégi a lépést a táblán
+	 */
 	private void nextMove() {
 		ArrayList<Movement> possibleNextMoves = new ArrayList<>();
 
@@ -72,18 +77,49 @@ public class Agent implements AgentsTurnListener {
 
 	}
 
-	private int attackHeuristica(Cell from, Cell to) {
-		int h = 0;
+	/**
+	 * Támadás esetén a paraméterként megadott lépés minõségét osztályozó függvény
+	 * @param from
+	 * @param to
+	 * @return heurisztika
+	 */
+	private double attackHeuristica(Cell from, Cell to) {
+		double h = 0;
 
 		return h;
 	}
 
-	private int idleHeuristica(Cell from, Cell to) {
-		int h = 0;
+	/**
+	 * Szabad lépés esetén a paraméterként megadott lépés minõséégt osztályozó függvény
+	 * @param from
+	 * @param to
+	 * @return heurisztika
+	 */
+	private double idleHeuristica(Cell from, Cell to) {
+		double h = 0;
+
+		return h;
+	}
+	
+	/**
+	 * Heurisztika függvény, lépés pozíciója alapján
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	private double distanceFromEdge(Cell from, Cell to){
+		double h = 0;
+		
+		
 
 		return h;
 	}
 
+	/**
+	 * Lépések listájából kiválasztja a legnagyonn heurisztikával rendelkezõt
+	 * @param movementList
+	 * @return
+	 */
 	private Movement getMaxHeuristic(ArrayList<Movement> movementList) {
 		Movement returnMovemnet = null;
 

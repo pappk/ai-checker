@@ -18,6 +18,8 @@ public class Board implements java.io.Serializable {
 	private int autoIncKey;
 	private Figure prevFigure;
 	private Initiater initiater;
+	//az MI játékos színe
+	private boolean miPlayerColor;
 
 	public boolean getWhiteOnTurn() {
 		return whiteOnTurn;
@@ -34,8 +36,9 @@ public class Board implements java.io.Serializable {
 		whiteOnTurn = a;
 	}
 
-	public Board(Initiater initiater) {
+	public Board(Initiater initiater, boolean miPlayerColor) {
 		this.initiater = initiater;
+		this.miPlayerColor = miPlayerColor;
 		
 		reset();
 	}
@@ -82,7 +85,6 @@ public class Board implements java.io.Serializable {
 	 * @param to
 	 * @throws GameException
 	 */
-	// TODO: GameException dobása
 	public GameEvents moveFigureFromTo(Cell from, Cell to) throws GameException {
 		System.out.println("from: " + from);
 		System.out.println("to: " + to);
@@ -164,6 +166,11 @@ public class Board implements java.io.Serializable {
 			}
 		} else {
 			// Érvénytelen játéktér
+		}
+		
+		//MI játékos értesítése ütéssorozat esetén
+		if(loopAttack && whiteOnTurn == miPlayerColor){	
+			initiater.yourTurn();
 		}
 		
 		return gameStatus;
@@ -431,6 +438,12 @@ public class Board implements java.io.Serializable {
 	}
 
 	
+	/**
+	 * Megvizsgálja, hogy nem ért-e véget a játék
+	 * ha nem, akkor a következõ játékosra helyezi sort
+	 * ha MI játékoson van sor, akkor értesíti
+	 * @return
+	 */
 	public GameEvents changePlayer() {
 		setWhiteOnTurn(!whiteOnTurn);
 		prevFigure = null;
@@ -440,7 +453,8 @@ public class Board implements java.io.Serializable {
 		//Feltétel vizsgálat, hogy tart-e még a játék
 		if(whiteCount > 0 && blackCount > 0 && canPlayerMove(whiteOnTurn)){
 			
-			if(whiteOnTurn == false){
+			//MI játékos értesítése
+			if(whiteOnTurn == miPlayerColor){
 				initiater.yourTurn();
 			}
 			

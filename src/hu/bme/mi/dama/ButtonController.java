@@ -21,7 +21,7 @@ public class ButtonController {
 	GameEvents status = null;
 
 	public ButtonController() {
-		board = new Board(initiater);
+		board = new Board(initiater, false);
 		view = new ButtonView(board);
 		view.setVisible(true);
 		agent = new Agent(this, false);

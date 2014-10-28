@@ -5,7 +5,7 @@ import hu.bme.mi.dama.Cell;
 public class Movement {
 	private Cell from;
 	private Cell to;
-	private Integer h;
+	private Double h;
 	
 	public Movement(Cell from, Cell to){
 		this.from = from;
@@ -13,7 +13,7 @@ public class Movement {
 		this. h = null;
 	}
 	
-	public Movement(Cell from, Cell to, Integer h){
+	public Movement(Cell from, Cell to, Double h){
 		this.from = from;
 		this.to = to;
 		this. h = h;
@@ -35,11 +35,11 @@ public class Movement {
 		this.to = to;
 	}
 
-	public Integer getH() {
+	public Double getH() {
 		return h;
 	}
 
-	public void setH(Integer h) {
+	public void setH(Double h) {
 		this.h = h;
 	}
 	
