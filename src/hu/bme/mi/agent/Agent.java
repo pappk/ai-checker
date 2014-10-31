@@ -10,8 +10,8 @@ import java.util.ArrayList;
 
 /*
  * FONTOS
- * Az {actual} vï¿½ltozï¿½ pointer a tï¿½nyleges tï¿½blï¿½ra.
- * Nem szabad rajta mï¿½dosï¿½tï¿½st vï¿½gezni, kivï¿½ve a vï¿½gleges lï¿½pï¿½st.
+ * Az {actual} változó pointer a tényleges táblára.
+ * Nem szabad rajta módosítást végezni, kivéve a végleges lépést.
  * 
  */
 
@@ -21,12 +21,12 @@ public class Agent implements AgentsTurnListener {
 	private ButtonController controller;
 
 	/**
-	 * Mestersï¿½ges intelligenciï¿½t reprezentï¿½lï¿½ osztï¿½ly
+	 * Mesterséges intelligenciát reprezentáló osztály
 	 * 
 	 * @param board
-	 *            A kï¿½zï¿½s valï¿½sï¿½galap a tï¿½bla aktuï¿½lis ï¿½llapotï¿½ra mutatï¿½ pointer
+	 *            A közös valóságalap a tábla aktuális állapotára mutató pointer
 	 * @param color
-	 *            Az MI jï¿½tï¿½kos szï¿½ne
+	 *            Az MI játékos színe
 	 */
 	public Agent(Board board, boolean color) {
 		this.actual = board;
@@ -40,10 +40,10 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * color szï¿½nï¿½ jï¿½tï¿½kos legoptimï¿½lisabb lï¿½pï¿½svel visszatï¿½rï¿½ fï¿½ggï¿½ny
+	 * color színû játékos legoptimálisabb lépésvel visszatérõ függény
 	 * 
-	 * @param color	Jï¿½tï¿½kos szï¿½ne
-	 * @param board	aktuï¿½lis jï¿½tï¿½kï¿½llapot
+	 * @param color	Játékos színe
+	 * @param board	aktuális játékállapot
 	 * @return
 	 */
 	private Movement getNextMovement(boolean color, Board board) {
@@ -53,7 +53,7 @@ public class Agent implements AgentsTurnListener {
 		ArrayList<Cell> possibleAttackCells = workingBoard
 				.getFigurePossibleAttack(color);
 		if (possibleAttackCells.size() > 0) {
-			// Van kï¿½telezï¿½ ï¿½tï¿½s
+			// Van kötelezõ ütés
 			for (Cell cell : possibleAttackCells) {
 				ArrayList<Cell> attackTargetCell = workingBoard
 						.getCellPossibleAttack(cell);
@@ -63,7 +63,7 @@ public class Agent implements AgentsTurnListener {
 				}
 			}
 		} else {
-			// Szabad lï¿½pï¿½s
+			// Szabad lépés
 			ArrayList<Cell> possibleMoveCells = workingBoard
 					.getFigurePossibleMove(color);
 			for (Cell cell : possibleMoveCells) {
@@ -82,8 +82,8 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * MI jï¿½tï¿½kos lï¿½pï¿½se kiszï¿½molja a lehetsï¿½ges lï¿½pï¿½sek heurisztikï¿½jï¿½t ï¿½s
-	 * kivï¿½lasztja a legjobbat, majd elvï¿½gi a lï¿½pï¿½st a tï¿½blï¿½n
+	 * MI játékos lépése kiszámolja a lehetséges lépések heurisztikáját és
+	 * kiválasztja a legjobbat, majd elvégi a lépést a táblán
 	 */
 	private void nextMove() {
 		Movement maxHeuristicMovement = getNextMovement(color, actual);
@@ -98,8 +98,8 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * Tï¿½madï¿½s esetï¿½n a paramï¿½terkï¿½nt megadott lï¿½pï¿½s minï¿½sï¿½gï¿½t osztï¿½lyozï¿½
-	 * fï¿½ggvï¿½ny
+	 * Támadás esetén a paraméterként megadott lépés minõségét osztályoza
+	 * függvény
 	 * 
 	 * @param from
 	 * @param to
@@ -108,16 +108,16 @@ public class Agent implements AgentsTurnListener {
 	private double attackHeuristica(Cell from, Cell to) {
 		double h = 0;
 
-		//"aktiÃ¡lis" Ã¡llapot board
+		//"aktiális" állapot board
 		//board.move(Movement)
-		//board monitorozÃ¡s
-		//lÃ©pÃ©s osztÃ¡lyozÃ¡sa
+		//board monitorozás
+		//lépés osztályozása
 		return h;
 	}
 
 	/**
-	 * Szabad lï¿½pï¿½s esetï¿½n a paramï¿½terkï¿½nt megadott lï¿½pï¿½s minï¿½sï¿½ï¿½gt osztï¿½lyozï¿½
-	 * fï¿½ggvï¿½ny
+	 * Szabad lépés esetén a paraméterként megadott lépés minõséégt osztályoza
+	 * függvény
 	 * 
 	 * @param from
 	 * @param to
@@ -131,14 +131,14 @@ public class Agent implements AgentsTurnListener {
 
 
 	/**
-	 * Lï¿½pï¿½sek listï¿½jï¿½bï¿½l kivï¿½lasztja a legnagyonn heurisztikï¿½val rendelkezï¿½t
+	 * Lépések listájából kiválasztja a legnagyonn heurisztikával rendelkezõt
 	 * 
 	 * @param movementList
 	 * @return
 	 */
 	private Movement getMaxHeuristic(ArrayList<Movement> movementList) {
 		Movement returnMovemnet = null;
-		//TODO: vÃ©letlen kivÃ¡lasztÃ¡s a legjobbak kÃ¶zÃ¼l
+		//TODO: véletlen kiválasztás a legjobbak közül
 		for (Movement movement : movementList) {
 			if (returnMovemnet == null
 					|| movement.getH() > returnMovemnet.getH()) {
@@ -152,7 +152,7 @@ public class Agent implements AgentsTurnListener {
 	@Override
 	public void yourTurn() {
 		// TODO Auto-generated method stub
-		System.out.println("agent jï¿½n");
+		System.out.println("agent jön");
 		nextMove();
 	}
 }
