@@ -59,7 +59,7 @@ public class Agent implements AgentsTurnListener {
 						.getCellPossibleAttack(cell);
 				for (Cell cell2 : attackTargetCell) {
 					possibleNextMoves.add(new Movement(cell, cell2,
-							attackHeuristica(cell, cell2)));
+							attackHeuristica(cell, cell2, workingBoard)));
 				}
 			}
 		} else {
@@ -71,7 +71,7 @@ public class Agent implements AgentsTurnListener {
 						.getCellPossibleMove(cell);
 				for (Cell cell2 : moveTargetCell) {
 					possibleNextMoves.add(new Movement(cell, cell2,
-							idleHeuristica(cell, cell2)));
+							idleHeuristica(cell, cell2, workingBoard)));
 				}
 			}
 		}
@@ -105,13 +105,18 @@ public class Agent implements AgentsTurnListener {
 	 * @param to
 	 * @return heurisztika
 	 */
-	private double attackHeuristica(Cell from, Cell to) {
+	private double attackHeuristica(Cell from, Cell to, Board actual) {
 		double h = 0;
+		Board workingBoard = actual.getBoardClone();
 
-		//"aktiális" állapot board
+		//"aktuális" állapot board
 		//board.move(Movement)
 		//board monitorozás
 		//lépés osztályozása
+		
+		//TODO
+		
+		workingBoard = null;
 		return h;
 	}
 
@@ -123,9 +128,13 @@ public class Agent implements AgentsTurnListener {
 	 * @param to
 	 * @return heurisztika
 	 */
-	private double idleHeuristica(Cell from, Cell to) {
+	private double idleHeuristica(Cell from, Cell to, Board actual) {
 		double h = 0;
+		Board workingBoard = actual.getBoardClone();
+		
+		//TODO
 
+		workingBoard = null;
 		return h;
 	}
 

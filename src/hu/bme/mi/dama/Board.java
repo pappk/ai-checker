@@ -34,9 +34,9 @@ public class Board implements java.io.Serializable {
 		whiteOnTurn = a;
 	}
 
-	public Board(Initiater initiater, boolean miPlayerColor) {
+	public Board(Initiater initiater, boolean aiPlayerColor) {
 		this.initiater = initiater;
-		this.aiPlayerColor = miPlayerColor;
+		this.aiPlayerColor = aiPlayerColor;
 
 		reset();
 		start();
