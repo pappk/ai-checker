@@ -1,8 +1,8 @@
 package hu.bme.mi.dama;
 
 public class Cell {
-	/* x meghatározza a vízszintes koordinátát
-	 * y pedig a függõleges mélységet
+	/* x meghatÃ¡rozza a vÃ­zszintes koordinÃ¡tÃ¡t
+	 * y pedig a fÃ¼ggÅ‘leges mÃ©lysÃ©get
 	 */
 	private int column;
 	private int row;

@@ -47,12 +47,12 @@ public class ButtonController {
 	}
 
 	/**
-	 * Függvény, ami lekezel egy lépést és a lépés hatására felmerülõ jelzéseket
+	 * FÃ¼ggvÃ©ny, ami lekezel egy lÃ©pÃ©st Ã©s a lÃ©pÃ©s hatÃ¡sÃ¡ra felmerÃ¼lÅ‘ jelzÃ©seket
 	 * 
 	 * @param from
-	 *            Lépés innen
+	 *            LÃ©pÃ©s innen
 	 * @param to
-	 *            Lépés ide
+	 *            LÃ©pÃ©s ide
 	 * @throws GameException 
 	 */
 	public void handlePlayerMovement(Cell from, Cell to) throws GameException {
@@ -78,9 +78,9 @@ public class ButtonController {
 
 	public void controllClick2(BoardButton b) {
 		if (status == GameEvents.KEEPGOING) {
-			// Hanyadik kattintás, volt már elõtte egy?
+			// Hanyadik kattintÃ¡s, volt mÃ¡r elÅ‘tte egy?
 			if (bPrev == null) {
-				// Az elsõ kattintás csak kijelöl
+				// Az elsÅ‘ kattintÃ¡s csak kijelÃ¶l
 				if (board.getFigure(b.getCell()) != null
 						&& board.getFigure(b.getCell()).getColor() == board
 								.getWhiteOnTurn()) {
@@ -88,7 +88,7 @@ public class ButtonController {
 					view.highlightCell(bPrev.getCell());
 				}
 			} else {
-				// Ha volt már kijelölt elsõ kattintás
+				// Ha volt mÃ¡r kijelÃ¶lt elsÅ‘ kattintÃ¡s
 				if (b.equals(bPrev)) {
 					view.setDefaultPaint(bPrev.getCell());
 					bPrev = null;

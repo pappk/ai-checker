@@ -4,7 +4,7 @@ package hu.bme.mi.dama;
 
 public class Figure implements java.io.Serializable{
 	/*
-	 * false: sötét true: világos
+	 * false: sÃ¶tÃ©t true: vilÃ¡gos
 	 */
 	final public boolean color;
 	private int dir;

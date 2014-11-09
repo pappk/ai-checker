@@ -11,8 +11,8 @@ import java.util.Random;
 
 /*
  * FONTOS
- * Az {actual} változó pointer a tényleges táblára.
- * Nem szabad rajta módosítást végezni, kivéve a végleges lépést.
+ * Az {actual} vÃ¡ltozÃ³ pointer a tÃ©nyleges tÃ¡blÃ¡ra.
+ * Nem szabad rajta mÃ³dosÃ­tÃ¡st vÃ©gezni, kivÃ©ve a vÃ©gleges lÃ©pÃ©st.
  * 
  */
 
@@ -22,12 +22,12 @@ public class Agent implements AgentsTurnListener {
 	private ButtonController controller;
 
 	/**
-	 * Mesterséges intelligenciát reprezentáló osztály
+	 * MestersÃ©ges intelligenciÃ¡t reprezentÃ¡lÃ³ osztÃ¡ly
 	 * 
 	 * @param board
-	 *            A közös valóságalap a tábla aktuális állapotára mutató pointer
+	 *            A kÃ¶zÃ¶s valÃ³sÃ¡galap a tÃ¡bla aktuÃ¡lis Ã¡llapotÃ¡ra mutatÃ³ pointer
 	 * @param color
-	 *            Az MI játékos színe
+	 *            Az MI jÃ¡tÃ©kos szÃ­ne
 	 */
 	public Agent(Board board, boolean color) {
 		this.actual = board;
@@ -41,12 +41,12 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * color színû játékos legoptimálisabb lépésvel visszatérõ függény
+	 * color szÃ­nÅ± jÃ¡tÃ©kos legoptimÃ¡lisabb lÃ©pÃ©svel visszatÃ©rÅ‘ fÃ¼ggÃ©ny
 	 * 
 	 * @param color
-	 *            Játékos színe
+	 *            JÃ¡tÃ©kos szÃ­ne
 	 * @param board
-	 *            aktuális játékállapot
+	 *            aktuÃ¡lis jÃ¡tÃ©kÃ¡llapot
 	 * @return
 	 */
 	private Movement getNextMovement(boolean color, Board board) {
@@ -57,7 +57,7 @@ public class Agent implements AgentsTurnListener {
 			ArrayList<Cell> possibleAttackCells = workingBoard
 					.getFigurePossibleAttack(color);
 			if (possibleAttackCells.size() > 0) {
-				// Van kötelezõ ütés
+				// Van kÃ¶telezÅ‘ Ã¼tÃ©s
 				for (Cell cell : possibleAttackCells) {
 					ArrayList<Cell> attackTargetCell = workingBoard
 							.getCellPossibleAttack(cell);
@@ -67,7 +67,7 @@ public class Agent implements AgentsTurnListener {
 					}
 				}
 			} else {
-				// Szabad lépés
+				// Szabad lÃ©pÃ©s
 				ArrayList<Cell> possibleMoveCells = workingBoard
 						.getFigurePossibleMove(color);
 				for (Cell cell : possibleMoveCells) {
@@ -90,8 +90,8 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * MI játékos lépése kiszámolja a lehetséges lépések heurisztikáját és
-	 * kiválasztja a legjobbat, majd elvégi a lépést a táblán
+	 * MI jÃ¡tÃ©kos lÃ©pÃ©se kiszÃ¡molja a lehetsÃ©ges lÃ©pÃ©sek heurisztikÃ¡jÃ¡t Ã©s
+	 * kivÃ¡lasztja a legjobbat, majd elvÃ©gi a lÃ©pÃ©st a tÃ¡blÃ¡n
 	 */
 	private void nextMove() {
 		Movement maxHeuristicMovement = getNextMovement(color, actual);
@@ -106,8 +106,8 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * Támadás esetén a paraméterként megadott lépés minõségét osztályozó
-	 * függvény
+	 * TÃ¡madÃ¡s esetÃ©n a paramÃ©terkÃ©nt megadott lÃ©pÃ©s minÅ‘sÃ©gÃ©t osztÃ¡lyozÃ³
+	 * fÃ¼ggvÃ©ny
 	 * 
 	 * @param from
 	 * @param to
@@ -120,8 +120,8 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * Szabad lépés esetén a paraméterként megadott lépés minõséégt osztályozó
-	 * függvény
+	 * Szabad lÃ©pÃ©s esetÃ©n a paramÃ©terkÃ©nt megadott lÃ©pÃ©s minÅ‘sÃ©Ã©gt osztÃ¡lyozÃ³
+	 * fÃ¼ggvÃ©ny
 	 * 
 	 * @param from
 	 * @param to
@@ -150,7 +150,7 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * Lépések listájából kiválasztja a legnagyonn heurisztikával rendelkezõt
+	 * LÃ©pÃ©sek listÃ¡jÃ¡bÃ³l kivÃ¡lasztja a legnagyonn heurisztikÃ¡val rendelkezÅ‘t
 	 * 
 	 * @param movementList
 	 * @return
@@ -160,7 +160,7 @@ public class Agent implements AgentsTurnListener {
 		Double maxHeuristic = null;
 		ArrayList<Movement> bestMoves = new ArrayList<>();
 
-		// Max heurisztika felderítése
+		// Max heurisztika felderÃ­tÃ©se
 		for (Movement movement : movementList) {
 			if (maxHeuristic == null || movement.getH() > maxHeuristic) {
 				returnMovemnet = movement;
@@ -168,7 +168,7 @@ public class Agent implements AgentsTurnListener {
 			}
 		}
 
-		// Max heurisztikával rendelkezõ lépések kiválasztása
+		// Max heurisztikÃ¡val rendelkezÅ‘ lÃ©pÃ©sek kivÃ¡lasztÃ¡sa
 		if (maxHeuristic != null) {
 			int movementkey = 0;
 
@@ -195,19 +195,19 @@ public class Agent implements AgentsTurnListener {
 	@Override
 	public void yourTurn() {
 		// TODO Auto-generated method stub
-		System.out.println("agent jön");
+		System.out.println("agent jÃ¶n");
 		nextMove();
 	}
 
 	/*
-	 * Monitorozó, osztályozó függvények
+	 * MonitorozÃ³, osztÃ¡lyozÃ³ fÃ¼ggvÃ©nyek
 	 */
 	/**
-	 * Visszaadja a cella távolságát a tábla szélétõl százalékosan
+	 * Visszaadja a cella tÃ¡volsÃ¡gÃ¡t a tÃ¡bla szÃ©lÃ©tÅ‘l szÃ¡zalÃ©kosan
 	 * 
 	 * @param board
 	 * @param cell
-	 * @return [0,1] intervallumból tér vissza
+	 * @return [0,1] intervallumbÃ³l tÃ©r vissza
 	 */
 	protected Double getDistanceFromEdge(Board board, Cell cell) {
 		Double d = null;
@@ -216,9 +216,9 @@ public class Agent implements AgentsTurnListener {
 				(board.dimension - 1) - cell.getColumn());
 		d = 1.0 - dist / (double) (board.dimension - 1);
 
-		System.out.println("Lépett cella: " + cell.getColumn());
-		System.out.println("távolság: " + dist);
-		System.out.println("távolság százalék: " + d);
+		System.out.println("LÃ©pett cella: " + cell.getColumn());
+		System.out.println("tÃ¡volsÃ¡g: " + dist);
+		System.out.println("tÃ¡volsÃ¡g szÃ¡zalÃ©k: " + d);
 
 		return d;
 	}
