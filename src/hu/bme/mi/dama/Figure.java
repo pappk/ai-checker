@@ -68,6 +68,12 @@ public class Figure implements java.io.Serializable{
 		else
 			return "s";
 	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return new Figure(getId(), getColor());
+	}
+	
 	
 	
 }

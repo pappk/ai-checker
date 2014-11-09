@@ -43,41 +43,48 @@ public class Agent implements AgentsTurnListener {
 	/**
 	 * color színû játékos legoptimálisabb lépésvel visszatérõ függény
 	 * 
-	 * @param color	Játékos színe
-	 * @param board	aktuális játékállapot
+	 * @param color
+	 *            Játékos színe
+	 * @param board
+	 *            aktuális játékállapot
 	 * @return
 	 */
 	private Movement getNextMovement(boolean color, Board board) {
 		ArrayList<Movement> possibleNextMoves = new ArrayList<>();
-		Board workingBoard = board.getBoardClone();
+		try {
+			Board workingBoard = board.getBoardClone();
 
-		ArrayList<Cell> possibleAttackCells = workingBoard
-				.getFigurePossibleAttack(color);
-		if (possibleAttackCells.size() > 0) {
-			// Van kötelezõ ütés
-			for (Cell cell : possibleAttackCells) {
-				ArrayList<Cell> attackTargetCell = workingBoard
-						.getCellPossibleAttack(cell);
-				for (Cell cell2 : attackTargetCell) {
-					possibleNextMoves.add(new Movement(cell, cell2,
-							attackHeuristica(cell, cell2, workingBoard)));
+			ArrayList<Cell> possibleAttackCells = workingBoard
+					.getFigurePossibleAttack(color);
+			if (possibleAttackCells.size() > 0) {
+				// Van kötelezõ ütés
+				for (Cell cell : possibleAttackCells) {
+					ArrayList<Cell> attackTargetCell = workingBoard
+							.getCellPossibleAttack(cell);
+					for (Cell cell2 : attackTargetCell) {
+						possibleNextMoves.add(new Movement(cell, cell2,
+								attackHeuristica(cell, cell2, workingBoard)));
+					}
+				}
+			} else {
+				// Szabad lépés
+				ArrayList<Cell> possibleMoveCells = workingBoard
+						.getFigurePossibleMove(color);
+				for (Cell cell : possibleMoveCells) {
+					ArrayList<Cell> moveTargetCell = workingBoard
+							.getCellPossibleMove(cell);
+					for (Cell cell2 : moveTargetCell) {
+						possibleNextMoves.add(new Movement(cell, cell2,
+								idleHeuristica(cell, cell2, workingBoard)));
+					}
 				}
 			}
-		} else {
-			// Szabad lépés
-			ArrayList<Cell> possibleMoveCells = workingBoard
-					.getFigurePossibleMove(color);
-			for (Cell cell : possibleMoveCells) {
-				ArrayList<Cell> moveTargetCell = workingBoard
-						.getCellPossibleMove(cell);
-				for (Cell cell2 : moveTargetCell) {
-					possibleNextMoves.add(new Movement(cell, cell2,
-							idleHeuristica(cell, cell2, workingBoard)));
-				}
-			}
+
+			workingBoard = null;
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		workingBoard = null;
 		return getMaxHeuristic(possibleNextMoves);
 
 	}
@@ -122,10 +129,25 @@ public class Agent implements AgentsTurnListener {
 	 */
 	private double idleHeuristica(Cell from, Cell to, Board actual) {
 		double h = 0;
+		try {
+			Board workingCopy = actual.getBoardClone();
+			h += getDistanceFromEdge(actual, to);
 
+			try {
+				workingCopy.moveFigureFromTo(from, to);
+				int i = 0;
+
+			} catch (GameException e) { // TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			workingCopy = null;
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return h;
 	}
-
 
 	/**
 	 * Lépések listájából kiválasztja a legnagyonn heurisztikával rendelkezõt
@@ -135,21 +157,38 @@ public class Agent implements AgentsTurnListener {
 	 */
 	private Movement getMaxHeuristic(ArrayList<Movement> movementList) {
 		Movement returnMovemnet = null;
-		ArrayList<Movement> BestMoves = new ArrayList<>();
-		int movementkey = 0;
+		Double maxHeuristic = null;
+		ArrayList<Movement> bestMoves = new ArrayList<>();
 
+		// Max heurisztika felderítése
 		for (Movement movement : movementList) {
-			if (returnMovemnet == null
-					|| movement.getH() >= returnMovemnet.getH()) {
+			if (maxHeuristic == null || movement.getH() > maxHeuristic) {
 				returnMovemnet = movement;
-				BestMoves.add(movement);
+				maxHeuristic = movement.getH();
 			}
-			System.out.println(movementkey+". lehetseges lepes:"+movement.getFrom().getRow()+":"+movement.getFrom().getColumn()+" -to:"+movement.getTo().getRow()+":"+movement.getTo().getColumn());
+		}
+
+		// Max heurisztikával rendelkezõ lépések kiválasztása
+		if (maxHeuristic != null) {
+			int movementkey = 0;
+
+			for (Movement movement : movementList) {
+				if (movement.getH() >= maxHeuristic) {
+					bestMoves.add(movement);
+				}
+				System.out.println(movementkey + ". lehetseges lepes:"
+						+ movement.getFrom().getRow() + ":"
+						+ movement.getFrom().getColumn() + " -to:"
+						+ movement.getTo().getRow() + ":"
+						+ movement.getTo().getColumn() + " -h:"
+						+ movement.getH()
+						+ (bestMoves.contains(movement) ? "  [*]" : ""));
+			}
 			movementkey++;
 		}
 
 		Random randomselect = new Random();
-		returnMovemnet = BestMoves.get(randomselect.nextInt(movementkey));
+		returnMovemnet = bestMoves.get(randomselect.nextInt(bestMoves.size()));
 		return returnMovemnet;
 	}
 
@@ -158,5 +197,29 @@ public class Agent implements AgentsTurnListener {
 		// TODO Auto-generated method stub
 		System.out.println("agent jön");
 		nextMove();
+	}
+
+	/*
+	 * Monitorozó, osztályozó függvények
+	 */
+	/**
+	 * Visszaadja a cella távolságát a tábla szélétõl százalékosan
+	 * 
+	 * @param board
+	 * @param cell
+	 * @return [0,1] intervallumból tér vissza
+	 */
+	protected Double getDistanceFromEdge(Board board, Cell cell) {
+		Double d = null;
+
+		int dist = Math.min(cell.getColumn(),
+				(board.dimension - 1) - cell.getColumn());
+		d = 1.0 - dist / (double) (board.dimension - 1);
+
+		System.out.println("Lépett cella: " + cell.getColumn());
+		System.out.println("távolság: " + dist);
+		System.out.println("távolság százalék: " + d);
+
+		return d;
 	}
 }

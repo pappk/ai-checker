@@ -36,4 +36,11 @@ public class Checker extends Figure implements java.io.Serializable{
 		return true;
 	}
 
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return new Checker(getId(), getColor());
+	}
+	
+	
+
 }

@@ -8,7 +8,7 @@ import hu.bme.mi.utils.Initiater;
 import java.util.ArrayList;
 
 public class Board implements java.io.Serializable {
-	final protected int dimension = 8;
+	final public int dimension = 8;
 	protected Figure[][] figureArray = new Figure[dimension][dimension];
 	protected boolean whiteOnTurn = true;
 	boolean forcedAttack;
@@ -511,17 +511,26 @@ public class Board implements java.io.Serializable {
 	 * Vissaztér a pálya másolatával
 	 * 
 	 * @return
+	 * @throws CloneNotSupportedException 
 	 */
-	public Board getBoardClone() {
+	public Board getBoardClone() throws CloneNotSupportedException {
 		// Másolat készítése a tábláról úgy, hogy ne érje el az értesítés küldõ
 		// interfészt
 		Board newBoard = new Board(null, aiPlayerColor);
 		newBoard.autoIncKey = autoIncKey;
-		newBoard.figureArray = figureArray.clone();
+		//newBoard.figureArray = figureArray.clone();
 		newBoard.forcedAttack = forcedAttack;
 		newBoard.loopAttack = loopAttack;
 		newBoard.prevFigure = null;
 		newBoard.whiteOnTurn = whiteOnTurn;
+		newBoard.figureArray = new Figure[dimension][dimension];
+		for(int i=0; i<dimension; i++){
+			for(int j=0; j<dimension; j++){
+				if(figureArray[i][j] != null){
+					newBoard.figureArray[i][j] = (Figure)figureArray[i][j].clone();
+				}
+			}
+		}
 
 		return newBoard;
 	}
