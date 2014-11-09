@@ -3,10 +3,11 @@ package hu.bme.mi.agent;
 import hu.bme.mi.dama.Board;
 import hu.bme.mi.dama.ButtonController;
 import hu.bme.mi.dama.Cell;
-import hu.bme.mi.utils.GameException;
 import hu.bme.mi.utils.AgentsTurnListener;
+import hu.bme.mi.utils.GameException;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /*
  * FONTOS
@@ -59,7 +60,7 @@ public class Agent implements AgentsTurnListener {
 						.getCellPossibleAttack(cell);
 				for (Cell cell2 : attackTargetCell) {
 					possibleNextMoves.add(new Movement(cell, cell2,
-							attackHeuristica(cell, cell2)));
+							attackHeuristica(cell, cell2, workingBoard)));
 				}
 			}
 		} else {
@@ -71,7 +72,7 @@ public class Agent implements AgentsTurnListener {
 						.getCellPossibleMove(cell);
 				for (Cell cell2 : moveTargetCell) {
 					possibleNextMoves.add(new Movement(cell, cell2,
-							idleHeuristica(cell, cell2)));
+							idleHeuristica(cell, cell2, workingBoard)));
 				}
 			}
 		}
@@ -105,7 +106,7 @@ public class Agent implements AgentsTurnListener {
 	 * @param to
 	 * @return heurisztika
 	 */
-	private double attackHeuristica(Cell from, Cell to) {
+	private double attackHeuristica(Cell from, Cell to, Board actual) {
 		double h = 0;
 
 		return h;
@@ -119,7 +120,7 @@ public class Agent implements AgentsTurnListener {
 	 * @param to
 	 * @return heurisztika
 	 */
-	private double idleHeuristica(Cell from, Cell to) {
+	private double idleHeuristica(Cell from, Cell to, Board actual) {
 		double h = 0;
 
 		return h;
@@ -134,14 +135,21 @@ public class Agent implements AgentsTurnListener {
 	 */
 	private Movement getMaxHeuristic(ArrayList<Movement> movementList) {
 		Movement returnMovemnet = null;
+		ArrayList<Movement> BestMoves = new ArrayList<>();
+		int movementkey = 0;
 
 		for (Movement movement : movementList) {
 			if (returnMovemnet == null
-					|| movement.getH() > returnMovemnet.getH()) {
+					|| movement.getH() >= returnMovemnet.getH()) {
 				returnMovemnet = movement;
+				BestMoves.add(movement);
 			}
+			System.out.println(movementkey+". lehetseges lepes:"+movement.getFrom().getRow()+":"+movement.getFrom().getColumn()+" -to:"+movement.getTo().getRow()+":"+movement.getTo().getColumn());
+			movementkey++;
 		}
 
+		Random randomselect = new Random();
+		returnMovemnet = BestMoves.get(randomselect.nextInt(movementkey));
 		return returnMovemnet;
 	}
 
