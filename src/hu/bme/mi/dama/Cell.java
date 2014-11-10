@@ -1,37 +1,48 @@
 package hu.bme.mi.dama;
 
 public class Cell {
-	/* x meghatározza a vízszintes koordinátát
-	 * y pedig a függőleges mélységet
+	/*
+	 * x meghatározza a vízszintes koordinátát y pedig a függőleges mélységet
 	 */
 	private int column;
 	private int row;
-	
-	public Cell(int aRow, int aColumn){
-		column=aColumn;
-		row=aRow;
+
+	public Cell(int aRow, int aColumn) {
+		column = aColumn;
+		row = aRow;
 	}
-	
-	public void setPosition(int aRow, int aColumn){
-		column=aColumn;
-		row=aRow;
+
+	public void setPosition(int aRow, int aColumn) {
+		column = aColumn;
+		row = aRow;
 	}
-	
-	public int getColumn(){
+
+	public int getColumn() {
 		return column;
 	}
-	
-	public int getRow(){
+
+	public int getRow() {
 		return row;
 	}
-	
-	public boolean equal(Cell c2){
-		if(this.getColumn() == c2.getColumn() && this.getRow() == c2.getRow()){
+
+	/**
+	 * Kiszámítja két cella távolságát
+	 * @param cell
+	 * @return
+	 */
+	public double distance(Cell cell) {
+		return Math.sqrt(Math.pow((this.getRow() - cell.getRow()), 2)
+				+ Math.pow((this.getColumn() - cell.getColumn()), 2));
+	}
+
+	public boolean equal(Cell cell) {
+		if (this.getColumn() == cell.getColumn()
+				&& this.getRow() == cell.getRow()) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		// TODO Auto-generated method stub
@@ -39,7 +50,7 @@ public class Cell {
 	}
 
 	@Override
-	public String toString(){
-		return ""+getRow()+", "+getColumn();
+	public String toString() {
+		return "" + getRow() + ", " + getColumn();
 	}
 }

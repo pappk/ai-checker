@@ -3,11 +3,14 @@ package hu.bme.mi.agent;
 import hu.bme.mi.dama.Board;
 import hu.bme.mi.dama.ButtonController;
 import hu.bme.mi.dama.Cell;
+import hu.bme.mi.dama.Figure;
 import hu.bme.mi.utils.AgentsTurnListener;
 import hu.bme.mi.utils.GameException;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import com.sun.xml.internal.fastinfoset.algorithm.BuiltInEncodingAlgorithm.WordListener;
 
 /*
  * FONTOS
@@ -131,11 +134,18 @@ public class Agent implements AgentsTurnListener {
 		double h = 0;
 		try {
 			Board workingCopy = actual.getBoardClone();
-			h += getDistanceFromEdge(actual, to);
+			Figure figure = workingCopy.getFigure(from);
 
 			try {
+				h += 15 * isAttacked(workingCopy, from);
 				workingCopy.moveFigureFromTo(from, to);
-				int i = 0;
+				h += getDistanceFromEdge(workingCopy, to);
+				if(figure != null && figure.isChecker()){
+					h += getDistanceFromEnemy(workingCopy, from, to);
+				}
+				h += 12 * willBeChecker(workingCopy, to);
+				h += 10 * getAttackPossibility(workingCopy, to);
+				h += 20 * willBeAttacked(workingCopy, to);
 
 			} catch (GameException e) { // TODO Auto-generated catch block
 				e.printStackTrace();
@@ -207,19 +217,195 @@ public class Agent implements AgentsTurnListener {
 	 * 
 	 * @param board
 	 * @param cell
-	 * @return [0,1] intervallumból tér vissza
+	 * @return [0,1] intervallumból tér vissza.
 	 */
 	protected Double getDistanceFromEdge(Board board, Cell cell) {
 		Double d = null;
 
 		int dist = Math.min(cell.getColumn(),
 				(board.dimension - 1) - cell.getColumn());
-		d = 1.0 - dist / (double) (board.dimension - 1);
+		d = 1.0 - (double) dist / (double) (board.dimension - 1);
 
-		System.out.println("Lépett cella: " + cell.getColumn());
-		System.out.println("távolság: " + dist);
-		System.out.println("távolság százalék: " + d);
+		/*
+		 * System.out.println("Lépett cella: " + cell.getColumn());
+		 * System.out.println("távolság: " + dist);
+		 * System.out.println("távolság százalék: " + d);
+		 */
 
 		return d;
+	}
+
+	/**
+	 * Visszaadja az üthetési lehetőséget százalékosan. Ha létezik ütéssorozat,
+	 * akkor 1 feletti értékkel tér vissza.
+	 * 
+	 * @param board
+	 * @param from
+	 * @param to
+	 * @return Ha nincs ütési lehetőség 0-val tér vissza, ha létezik 1. Ha
+	 *         létezik ütéssorozat, akkor 1 feletti értékkel tér vissza.
+	 */
+	protected Double getAttackPossibility(Board board, Cell to) {
+		Double d = 0.0;
+		try {
+			ArrayList<Cell> possibleAttackCells = null;
+			possibleAttackCells = board.getCellPossibleAttack(to);
+
+			if (possibleAttackCells != null) {
+				for (Cell c : possibleAttackCells) {
+					Board paralelWorkingCopy = board.getBoardClone();
+					paralelWorkingCopy.moveFigureFromTo(to, c);
+					d += 1.0;
+					d += getAttackPossibility(paralelWorkingCopy, c);
+					paralelWorkingCopy = null;
+				}
+			}
+
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return d;
+	}
+
+	/**
+	 * Visszatér, hogy az új helyen üthető-e a bábu. Negatív értékekkel
+	 * korrigálja a heurisztikát.
+	 * 
+	 * @param board
+	 * @param cell
+	 * @return
+	 */
+	protected Double willBeAttacked(Board board, Cell cell) {
+		return getFigureAttackedRate(board, cell, true);
+	}
+
+	/**
+	 * Visszatér, hogy az eddigi helyen üthető-e a babu. Pozitív értékekkel
+	 * korrigálja a heurisztikát.
+	 * 
+	 * @param board
+	 * @param cell
+	 * @return
+	 */
+	protected Double isAttacked(Board board, Cell cell) {
+		return getFigureAttackedRate(board, cell, false);
+	}
+
+	/**
+	 * Visszatér, hogy az új helyen üthető-e a bábu?
+	 * 
+	 * @param board
+	 * @param cell
+	 * @param nextRound
+	 *            Ha true, akkor a cell a lépés célja, különben a cell a lépés
+	 *            kezdete. Vagyis ha a következő lépést vizsgálja, akkor
+	 *            negatívan befolyásolja az heurisztikát. Ha a jelen lépést
+	 *            vizsgálja, akkor pozitívan befolyásolja az heurisztikát.
+	 * @return Ha üthető a bábu visszatérési értéke 1, különben 0. Ha a bábu
+	 *         ütésével több saját bábu is üthető ütésláncolattal, akkor 1
+	 *         fölötti értékkel tér vissza.
+	 */
+	protected Double getFigureAttackedRate(Board board, Cell cell,
+			boolean nextRound) {
+		Double d = 0.0;
+		ArrayList<Cell> attackingFromCells = board.isFigureAttacked(cell);
+		int signal = (nextRound == true) ? -1 : 1;
+
+		if (attackingFromCells.size() > 0) {
+			for (Cell c : attackingFromCells) {
+				try {
+					int diffColumn = c.getColumn() - cell.getColumn();
+					int diffRow = c.getRow() - cell.getRow();
+					Cell attackingToCell = new Cell(cell.getRow() - diffRow,
+							cell.getColumn() - diffColumn);
+
+					Board paralelWorkingCopy = board.getBoardClone();
+					// paralelWorkingCopy.moveFigureFromTo(c, attackingToCell);
+
+					d += signal;
+					d += signal
+							* getAttackPossibility(paralelWorkingCopy,
+									attackingToCell);
+
+					paralelWorkingCopy = null;
+
+				} catch (CloneNotSupportedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}/*
+				 * catch (GameException e) { // TODO Auto-generated catch block
+				 * e.printStackTrace(); }
+				 */
+
+			}
+		}
+
+		/*
+		 * System.out.println("lépés: " + cell); System.out.println("támadó: " +
+		 * attackingFromCells); System.out.println("d: " + d);
+		 */
+
+		return d;
+	}
+
+	/**
+	 * Visszatér, hogy milyen távol van a bábu attól, hogy dáma legyen.
+	 * 
+	 * @param board
+	 * @param cell
+	 * @param figure
+	 * @return [0,1] intervallumból tér vissza a távolság függvényében. Ha már
+	 *         dáma, visszatérési értéke 0.
+	 */
+	protected Double willBeChecker(Board board, Cell cell) {
+		Double d = 0.0;
+		Figure figure = board.getFigure(cell);
+
+		if (figure != null && !figure.isChecker()) {
+			int row = cell.getRow();
+			int dist = (board.dimension - 1) - (row * figure.getDir());
+			d = 1 - (double) dist / (double) (board.dimension - 1);
+
+			d = Math.pow(d, 2);
+
+			System.out.println("lépés: " + cell);
+			System.out.println("dist: " + dist);
+			System.out.println("d: " + d);
+		}
+
+		return d;
+	}
+
+	/**
+	 * Visszatér a legközelebbi ellenfél távolsága alapján számított osztályozó értékkel.
+	 * @param board
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	//TODO: az ellenfél támadási pontját kiszámolni
+	protected Double getDistanceFromEnemy(Board board, Cell from, Cell to) {
+		ArrayList<Cell> enemyFigures = board.getAllFigureCellsPlayer(!color);
+		Cell closestEnemy = null;
+		Double closestEnemyDist = null;
+		for (Cell c : enemyFigures) {
+			double dist = c.distance(from);
+			if (closestEnemyDist == null || closestEnemyDist > dist) {
+				closestEnemy = c;
+				closestEnemyDist = dist;
+			}
+		}
+		double newDist = closestEnemy.distance(to);
+		double signal = (newDist < closestEnemyDist) ? 1.0 : -1.0;
+
+		if (newDist != closestEnemyDist) {
+			return signal;
+		} else {
+			return 0.5;
+		}
 	}
 }
