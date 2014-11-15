@@ -10,8 +10,6 @@ import hu.bme.mi.utils.GameException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.sun.xml.internal.fastinfoset.algorithm.BuiltInEncodingAlgorithm.WordListener;
-
 /*
  * FONTOS
  * Az {actual} változó pointer a tényleges táblára.
@@ -53,6 +51,11 @@ public class Agent implements AgentsTurnListener {
 	 * @return
 	 */
 	private Movement getNextMovement(boolean color, Board board) {
+		//DEBUG heurisztika kiiratás fejléc
+		System.out.format("+-------+------+---------+---------+---------+---------+---------+---------+---------+%n");
+		System.out.printf("| From  | To   | isAtckd | dEdge   | dEnmy   | chckr   | atckPos | wbAtckd | SUM     |%n");
+		System.out.format("+-------+------+---------+---------+---------+---------+---------+---------+---------+%n");
+		
 		ArrayList<Movement> possibleNextMoves = new ArrayList<>();
 		try {
 			Board workingBoard = board.getBoardClone();
@@ -88,6 +91,9 @@ public class Agent implements AgentsTurnListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		System.out.format("+-------+------+---------+---------+---------+---------+---------+---------+---------+%n");
+		
 		return getMaxHeuristic(possibleNextMoves);
 
 	}
@@ -137,15 +143,29 @@ public class Agent implements AgentsTurnListener {
 			Figure figure = workingCopy.getFigure(from);
 
 			try {
-				h += 15 * isAttacked(workingCopy, from);
+				double isAttackedH = isAttacked(workingCopy, from);
+				double getDistanceFromEdgeH = 0.0;
+				double getDistanceFromEnemyH = 0.0;
+				
+				h += 15 * isAttackedH;
 				workingCopy.moveFigureFromTo(from, to);
-				h += getDistanceFromEdge(workingCopy, to);
+				getDistanceFromEdgeH = getDistanceFromEdge(workingCopy, to);
+				h += getDistanceFromEdgeH;
 				if(figure != null && figure.isChecker()){
-					h += getDistanceFromEnemy(workingCopy, from, to);
+					getDistanceFromEnemyH = getDistanceFromEnemy(workingCopy, from, to);
+					h += getDistanceFromEnemyH;
 				}
-				h += 12 * willBeChecker(workingCopy, to);
-				h += 10 * getAttackPossibility(workingCopy, to);
-				h += 20 * willBeAttacked(workingCopy, to);
+				double willBeCheckerH = willBeChecker(workingCopy, to);
+				double getAttackPossibilityH = getAttackPossibility(workingCopy, to);
+				double willBeAttackedH = willBeAttacked(workingCopy, to);
+				
+				h += 12 * willBeCheckerH;
+				h += 10 * getAttackPossibilityH;
+				h += 20 * willBeAttackedH;
+				
+				//DEBUG heurisztika részösszegek kiratása
+				String leftAlignFormat = "| %-5s | %-4s | %.5f | %.5f | %.5f | %.5f | %.5f | %.5f | %.5f |%n";
+				System.out.format(leftAlignFormat, from.toString(), to.toString(), isAttackedH, getDistanceFromEdgeH, getDistanceFromEnemyH, willBeCheckerH, getAttackPossibilityH, willBeAttackedH, h);
 
 			} catch (GameException e) { // TODO Auto-generated catch block
 				e.printStackTrace();
@@ -193,8 +213,8 @@ public class Agent implements AgentsTurnListener {
 						+ movement.getTo().getColumn() + " -h:"
 						+ movement.getH()
 						+ (bestMoves.contains(movement) ? "  [*]" : ""));
+				movementkey++;
 			}
-			movementkey++;
 		}
 
 		Random randomselect = new Random();
@@ -372,9 +392,9 @@ public class Agent implements AgentsTurnListener {
 
 			d = Math.pow(d, 2);
 
-			System.out.println("lépés: " + cell);
+			/*System.out.println("lépés: " + cell);
 			System.out.println("dist: " + dist);
-			System.out.println("d: " + d);
+			System.out.println("d: " + d);*/
 		}
 
 		return d;

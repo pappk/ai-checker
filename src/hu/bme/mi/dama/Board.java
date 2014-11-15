@@ -89,8 +89,8 @@ public class Board implements java.io.Serializable {
 	 * @throws GameException
 	 */
 	public GameEvents moveFigureFromTo(Cell from, Cell to) throws GameException {
-		System.out.println("from: " + from);
-		System.out.println("to: " + to);
+		/*System.out.println("from: " + from);
+		System.out.println("to: " + to);*/
 
 		GameEvents gameStatus = GameEvents.KEEPGOING;
 
@@ -467,8 +467,8 @@ public class Board implements java.io.Serializable {
 		int whiteCount = getFigureCount(true);
 		int blackCount = getFigureCount(false);
 		
-		System.out.println("fehér: "+whiteCount);
-		System.out.println("fekete: "+blackCount);
+		/*System.out.println("fehér: "+whiteCount);
+		System.out.println("fekete: "+blackCount);*/
 		
 		// Feltétel vizsgálat, hogy tart-e még a játék
 		if (whiteCount > 0 && blackCount > 0 && canPlayerMove(whiteOnTurn)) {
