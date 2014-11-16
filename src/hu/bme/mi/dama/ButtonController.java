@@ -68,7 +68,7 @@ public class ButtonController {
 				view.setWinnerLabel(status);
 			} else {
 				if (board.getWhiteOnTurn() == aiPlayerColor) {
-					initiater.yourTurn();
+					initiater.yourTurn(aiPlayerColor);
 				}
 			}
 		} catch (GameException ex) {

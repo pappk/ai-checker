@@ -54,7 +54,7 @@ public class Figure implements java.io.Serializable{
 	}
 	
 	public boolean equals(Figure fig) {
-		if(this.getId() == fig.getId()){
+		if(fig != null && this.getId() == fig.getId()){
 			return true;
 		} else {
 			return false;

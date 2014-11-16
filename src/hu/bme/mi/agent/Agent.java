@@ -6,6 +6,7 @@ import hu.bme.mi.dama.Cell;
 import hu.bme.mi.dama.Figure;
 import hu.bme.mi.utils.AgentsTurnListener;
 import hu.bme.mi.utils.GameException;
+import hu.bme.mi.utils.GameEvent.GameEvents;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -59,6 +60,7 @@ public class Agent implements AgentsTurnListener {
 		ArrayList<Movement> possibleNextMoves = new ArrayList<>();
 		try {
 			Board workingBoard = board.getBoardClone();
+			workingBoard.resetStatusVariables();
 
 			ArrayList<Cell> possibleAttackCells = workingBoard
 					.getFigurePossibleAttack(color);
@@ -102,7 +104,7 @@ public class Agent implements AgentsTurnListener {
 	 * MI játékos lépése kiszámolja a lehetséges lépések heurisztikáját és
 	 * kiválasztja a legjobbat, majd elvégi a lépést a táblán
 	 */
-	private void nextMove() {
+	private void nextMove(boolean color) {
 		Movement maxHeuristicMovement = getNextMovement(color, actual);
 		try {
 			controller.handlePlayerMovement(maxHeuristicMovement.getFrom(),
@@ -146,20 +148,23 @@ public class Agent implements AgentsTurnListener {
 				double isAttackedH = isAttacked(workingCopy, from);
 				double getDistanceFromEdgeH = 0.0;
 				double getDistanceFromEnemyH = 0.0;
+				double willBeCheckerH = willBeChecker(workingCopy, from);
+				double canProtectOthersH = canProtectOthers(workingCopy, from, to);
 				
+				h += 10 * canProtectOthersH;
 				h += 15 * isAttackedH;
+				h += 12 * willBeCheckerH;
 				workingCopy.moveFigureFromTo(from, to);
 				getDistanceFromEdgeH = getDistanceFromEdge(workingCopy, to);
 				h += getDistanceFromEdgeH;
 				if(figure != null && figure.isChecker()){
 					getDistanceFromEnemyH = getDistanceFromEnemy(workingCopy, from, to);
-					h += getDistanceFromEnemyH;
+					h += 2 * getDistanceFromEnemyH;
 				}
-				double willBeCheckerH = willBeChecker(workingCopy, to);
+				
 				double getAttackPossibilityH = getAttackPossibility(workingCopy, to);
 				double willBeAttackedH = willBeAttacked(workingCopy, to);
 				
-				h += 12 * willBeCheckerH;
 				h += 10 * getAttackPossibilityH;
 				h += 20 * willBeAttackedH;
 				
@@ -223,10 +228,10 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	@Override
-	public void yourTurn() {
+	public void yourTurn(boolean color) {
 		// TODO Auto-generated method stub
 		System.out.println("agent jön");
-		nextMove();
+		nextMove(color);
 	}
 
 	/*
@@ -338,10 +343,10 @@ public class Agent implements AgentsTurnListener {
 		if (attackingFromCells.size() > 0) {
 			for (Cell c : attackingFromCells) {
 				try {
-					int diffColumn = c.getColumn() - cell.getColumn();
+					/*int diffColumn = c.getColumn() - cell.getColumn();
 					int diffRow = c.getRow() - cell.getRow();
 					Cell attackingToCell = new Cell(cell.getRow() - diffRow,
-							cell.getColumn() - diffColumn);
+							cell.getColumn() - diffColumn);*/
 
 					Board paralelWorkingCopy = board.getBoardClone();
 					// paralelWorkingCopy.moveFigureFromTo(c, attackingToCell);
@@ -349,7 +354,7 @@ public class Agent implements AgentsTurnListener {
 					d += signal;
 					d += signal
 							* getAttackPossibility(paralelWorkingCopy,
-									attackingToCell);
+									c);
 
 					paralelWorkingCopy = null;
 
@@ -385,18 +390,16 @@ public class Agent implements AgentsTurnListener {
 		Double d = 0.0;
 		Figure figure = board.getFigure(cell);
 
-		if (figure != null && !figure.isChecker()) {
-			int row = cell.getRow();
-			int dist = (board.dimension - 1) - (row * figure.getDir());
-			d = 1 - (double) dist / (double) (board.dimension - 1);
+		if(figure != null && !figure.isChecker()){
 
-			d = Math.pow(d, 2);
+				int row = cell.getRow();
+				int dist = (board.dimension - 1) - (row * figure.getDir());
+				d = 1 - (double) dist / (double) (board.dimension - 1);
 
-			/*System.out.println("lépés: " + cell);
-			System.out.println("dist: " + dist);
-			System.out.println("d: " + d);*/
+				d = Math.pow(d, 2);
+			
 		}
-
+		
 		return d;
 	}
 
@@ -428,4 +431,84 @@ public class Agent implements AgentsTurnListener {
 			return 0.5;
 		}
 	}
+	
+	/**
+	 * Megvizsgálja, hogy tudja-e akadályozni, hogy az ellenfél levegye a bábuját.
+	 * @param board
+	 * @param from
+	 * @param to
+	 * @return Visszatér a megvédhető bábuk számával.
+	 */
+	protected Double canProtectOthers(Board board, Cell from, Cell to) {
+		Double d = 0.0;
+		
+		try {
+			ArrayList<Cell> enemyNumberCanAttackBefore = board.getFigurePossibleAttack(!color);
+			board.moveFigureFromTo(from, to);
+			ArrayList<Cell> enemyNumberCanAttackAfter = board.getFigurePossibleAttack(!color);
+			
+			d = (double)(enemyNumberCanAttackBefore.size() - enemyNumberCanAttackAfter.size());
+		} catch (GameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return d;
+	}
+	
+	/**
+	 * Visszatér, hogy a következő lépéssel nyer-e
+	 * @param board
+	 * @param from
+	 * @param to
+	 * @return true nyer, false nem
+	 */
+	protected boolean willIWin(Board board, Cell from, Cell to) {
+		try {
+			Board workingCopy = board.getBoardClone();
+			GameEvents status = null; 
+					workingCopy.moveFigureFromTo(from, to);
+			while(workingCopy.getLoopAttack()  || status == null){
+				status = workingCopy.moveFigureFromTo(from, to);
+			}
+			if(status == GameEvents.TIE || status == GameEvents.WINNERBLACK){
+				return true;
+			}
+				
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+	
+	/*protected Double canForceToAttackEnemy(Board board, Cell from, Cell to) {
+		Double d = 0.0;
+		int aiCount = board.getFigureCount(color);
+		int enemyCount = board.getFigureCount(!color);
+		
+		if(willBeAttacked(board, to) < 0){
+			try {
+				Board workingCopy = board.getBoardClone();
+				GameEvents status = null;
+				while(workingCopy.getLoopAttack() || status == null){
+					Movement enemyMovement = getNextMovement(!color, workingCopy);
+					workingCopy.moveFigureFromTo(enemyMovement.getFrom(), enemyMovement.getTo());
+				}
+				
+			} catch (CloneNotSupportedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (GameException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return d;
+	}*/
 }
