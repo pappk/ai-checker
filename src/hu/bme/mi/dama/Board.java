@@ -19,14 +19,6 @@ public class Board implements java.io.Serializable {
 	// az MI játékos színe
 	private boolean aiPlayerColor;
 
-	public Board(Initiater initiater, boolean aiPlayerColor) {
-		this.initiater = initiater;
-		this.aiPlayerColor = aiPlayerColor;
-
-		reset();
-		start();
-	}
-	
 	public boolean getWhiteOnTurn() {
 		return whiteOnTurn;
 	}
@@ -41,9 +33,13 @@ public class Board implements java.io.Serializable {
 	public void setWhiteOnTurn(boolean a) {
 		whiteOnTurn = a;
 	}
-	
-	public boolean getLoopAttack(){
-		return loopAttack;
+
+	public Board(Initiater initiater, boolean aiPlayerColor) {
+		this.initiater = initiater;
+		this.aiPlayerColor = aiPlayerColor;
+
+		reset();
+		start();
 	}
 
 	public void clearBoard() {
@@ -75,13 +71,13 @@ public class Board implements java.io.Serializable {
 			}
 		}
 	}
-
+	
 	/**
 	 * Ha az AI játékos kezd, akkor értesíti a kezdésről
 	 */
-	public void start() {
-		if (initiater != null && whiteOnTurn == aiPlayerColor) {
-			initiater.yourTurn(aiPlayerColor);
+	public void start(){
+		if(initiater != null && whiteOnTurn == aiPlayerColor){
+			initiater.yourTurn();
 		}
 	}
 
@@ -93,9 +89,8 @@ public class Board implements java.io.Serializable {
 	 * @throws GameException
 	 */
 	public GameEvents moveFigureFromTo(Cell from, Cell to) throws GameException {
-		/*
-		 * System.out.println("from: " + from); System.out.println("to: " + to);
-		 */
+		System.out.println("from: " + from);
+		System.out.println("to: " + to);
 
 		GameEvents gameStatus = GameEvents.KEEPGOING;
 
@@ -177,14 +172,12 @@ public class Board implements java.io.Serializable {
 		}
 
 		// MI játékos értesítése ütéssorozat esetén
-		/*
-		 * if (initiater != null && loopAttack && whiteOnTurn == miPlayerColor)
-		 * { initiater.yourTurn(); }
-		 */
-		/*
-		 * if (loopAttack && whiteOnTurn == miPlayerColor) {
-		 * initiater.yourTurn(); }
-		 */
+		/*if (initiater != null && loopAttack && whiteOnTurn == miPlayerColor) {
+			initiater.yourTurn();
+		}*/
+		/*if (loopAttack && whiteOnTurn == miPlayerColor) {
+			initiater.yourTurn();
+		}*/
 
 		return gameStatus;
 	}
@@ -470,23 +463,20 @@ public class Board implements java.io.Serializable {
 		prevFigure = null;
 		forcedAttack = false;
 		loopAttack = false;
-
+		
 		int whiteCount = getFigureCount(true);
 		int blackCount = getFigureCount(false);
-
-		/*
-		 * System.out.println("fehér: "+whiteCount);
-		 * System.out.println("fekete: "+blackCount);
-		 */
-
+		
+		System.out.println("fehér: "+whiteCount);
+		System.out.println("fekete: "+blackCount);
+		
 		// Feltétel vizsgálat, hogy tart-e még a játék
 		if (whiteCount > 0 && blackCount > 0 && canPlayerMove(whiteOnTurn)) {
 
 			// MI játékos értesítése
-			/*
-			 * if (initiater != null && whiteOnTurn == miPlayerColor) {
-			 * initiater.yourTurn(); }
-			 */
+			/*if (initiater != null && whiteOnTurn == miPlayerColor) {
+				initiater.yourTurn();
+			}*/
 
 			// Nem ért még véget a játék
 			return GameEvents.KEEPGOING;
@@ -521,39 +511,28 @@ public class Board implements java.io.Serializable {
 	 * Vissaztér a pálya másolatával
 	 * 
 	 * @return
-	 * @throws CloneNotSupportedException
+	 * @throws CloneNotSupportedException 
 	 */
 	public Board getBoardClone() throws CloneNotSupportedException {
 		// Másolat készítése a tábláról úgy, hogy ne érje el az értesítés küldő
 		// interfészt
 		Board newBoard = new Board(null, aiPlayerColor);
 		newBoard.autoIncKey = autoIncKey;
-		// newBoard.figureArray = figureArray.clone();
+		//newBoard.figureArray = figureArray.clone();
 		newBoard.forcedAttack = forcedAttack;
 		newBoard.loopAttack = loopAttack;
-		newBoard.prevFigure = prevFigure;
+		newBoard.prevFigure = null;
 		newBoard.whiteOnTurn = whiteOnTurn;
 		newBoard.figureArray = new Figure[dimension][dimension];
-		for (int i = 0; i < dimension; i++) {
-			for (int j = 0; j < dimension; j++) {
-				if (figureArray[i][j] != null) {
-					newBoard.figureArray[i][j] = (Figure) figureArray[i][j]
-							.clone();
+		for(int i=0; i<dimension; i++){
+			for(int j=0; j<dimension; j++){
+				if(figureArray[i][j] != null){
+					newBoard.figureArray[i][j] = (Figure)figureArray[i][j].clone();
 				}
 			}
 		}
 
 		return newBoard;
-	}
-
-	/**
-	 * Alaphelyzetbe állítja a környezeti változókat. Támadás számításkor
-	 * problémát okozhat, ha a klónozott értékkel számol tovább a program.
-	 */
-	public void resetStatusVariables() {
-		forcedAttack = false;
-		loopAttack = false;
-		prevFigure = null;
 	}
 
 	/**
@@ -589,6 +568,9 @@ public class Board implements java.io.Serializable {
 			return false;
 		}
 	}
+	public boolean isLoopAttack() {
+		return loopAttack;
+	}
 
 	/**
 	 * Meghatározza, hogy addot celláról addott cellára lehetséges-e az ütes
@@ -623,18 +605,18 @@ public class Board implements java.io.Serializable {
 			Cell SE = new Cell(cell.getRow() + 1, cell.getColumn() + 1);
 
 			if (isCellValid(NW) && isCellValid(SE)) {
-				if (possibleAttackFromTo(NW, SE)) {
+				if(possibleAttackFromTo(NW, SE)){
 					attackCells.add(NW);
 				}
-				if (possibleAttackFromTo(SE, NW)) {
+				if(possibleAttackFromTo(SE, NW)){
 					attackCells.add(SE);
 				}
 			}
 			if (isCellValid(NE) && isCellValid(SW)) {
-				if (possibleAttackFromTo(NE, SW)) {
+				if(possibleAttackFromTo(NE, SW)){
 					attackCells.add(NE);
 				}
-				if (possibleAttackFromTo(SW, NE)) {
+				if(possibleAttackFromTo(SW, NE)){
 					attackCells.add(SW);
 				}
 			}
