@@ -176,7 +176,7 @@ public class Agent implements AgentsTurnListener {
 				double isAttackedH = isAttacked(workingCopy, from);
 				double getDistanceFromEdgeH = 0.0;
 				double getDistanceFromEnemyH = 0.0;
-				double willBeCheckerH = willBeChecker(workingCopy, from);
+				double willBeCheckerH = willBeChecker(workingCopy, from, to);
 				double canProtectOthersH = canProtectOthers(workingCopy, from, to);
 				
 				h += 10 * canProtectOthersH;
@@ -414,13 +414,13 @@ public class Agent implements AgentsTurnListener {
 	 * @return [0,1] intervallumból tér vissza a távolság függvényében. Ha már
 	 *         dáma, visszatérési értéke 0.
 	 */
-	protected Double willBeChecker(Board board, Cell cell) {
+	protected Double willBeChecker(Board board, Cell from, Cell to) {
 		Double d = 0.0;
-		Figure figure = board.getFigure(cell);
+		Figure figure = board.getFigure(from);
 
 		if(figure != null && !figure.isChecker()){
 
-				int row = cell.getRow();
+				int row = to.getRow();
 				int dist = (board.dimension - 1) - (row * figure.getDir());
 				d = 1 - (double) dist / (double) (board.dimension - 1);
 
