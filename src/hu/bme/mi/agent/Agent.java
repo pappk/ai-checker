@@ -230,16 +230,23 @@ public class Agent implements AgentsTurnListener {
 	 * kiválasztja a legjobbat, majd elvégi a lépést a táblán
 	 */
 	private void nextMove(boolean color) {
-		Vertex startVertex = new Vertex(getNextId(), actual);
-		Graph graph = new Graph(startVertex);
-		getNextMovementGraph(color, actual, graph, startVertex, 3, 0);
+		Movement maxHeuristicMovement = null;
+		if (!actual.getLoopAttack()) {
+			//Szabad lépés esetén
+			Vertex startVertex = new Vertex(getNextId(), actual);
+			Graph graph = new Graph(startVertex);
+			getNextMovementGraph(color, actual, graph, startVertex, 3, 0);
 
-		Movement nextMovement = graph.getSearchMaxMovement(
-				graph.getStartVertex(), 0);
+			Movement nextMovement = graph.getSearchMaxMovement(
+					graph.getStartVertex(), 0);
 
-		System.out.println(nextMovement + " => " + nextMovement.moveChain);
+			System.out.println(nextMovement + " => " + nextMovement.moveChain);
 
-		Movement maxHeuristicMovement = nextMovement;
+			maxHeuristicMovement = nextMovement;
+		} else {
+			//Ütésorozat esetén
+			maxHeuristicMovement = getNextLoopAttackMovement(actual.getPrecCell(), actual);
+		}
 		try {
 			controller.handlePlayerMovement(maxHeuristicMovement.getFrom(),
 					maxHeuristicMovement.getTo());

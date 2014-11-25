@@ -15,6 +15,7 @@ public class Board implements java.io.Serializable {
 	boolean loopAttack;
 	private int autoIncKey;
 	private Figure prevFigure;
+	private Cell prevCell;
 	private Initiater initiater;
 	// az MI játékos színe
 	private boolean aiPlayerColor;
@@ -45,6 +46,10 @@ public class Board implements java.io.Serializable {
 	public boolean getLoopAttack() {
 		return loopAttack;
 	}
+	
+	public Cell getPrecCell(){
+		return prevCell;
+	}
 
 	public void clearBoard() {
 		forcedAttack = false;
@@ -52,6 +57,7 @@ public class Board implements java.io.Serializable {
 		whiteOnTurn = true;
 		autoIncKey = 0;
 		prevFigure = null;
+		prevCell = null;
 
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
@@ -133,6 +139,7 @@ public class Board implements java.io.Serializable {
 								// akkor ütéssorozatot kell a következő lépésben
 								loopAttack = true;
 								prevFigure = getFigure(to);
+								prevCell = to;
 							} else {
 								// A játékos köre befejeződött
 								gameStatus = changePlayer();
@@ -528,6 +535,7 @@ public class Board implements java.io.Serializable {
 		newBoard.forcedAttack = forcedAttack;
 		newBoard.loopAttack = loopAttack;
 		newBoard.prevFigure = prevFigure;
+		newBoard.prevCell = prevCell;
 		newBoard.whiteOnTurn = whiteOnTurn;
 		newBoard.figureArray = new Figure[dimension][dimension];
 		for (int i = 0; i < dimension; i++) {
@@ -550,6 +558,7 @@ public class Board implements java.io.Serializable {
 		forcedAttack = false;
 		loopAttack = false;
 		prevFigure = null;
+		prevCell = null;
 	}
 
 	/**
