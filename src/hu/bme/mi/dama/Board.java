@@ -26,7 +26,7 @@ public class Board implements java.io.Serializable {
 		reset();
 		start();
 	}
-	
+
 	public boolean getWhiteOnTurn() {
 		return whiteOnTurn;
 	}
@@ -41,8 +41,8 @@ public class Board implements java.io.Serializable {
 	public void setWhiteOnTurn(boolean a) {
 		whiteOnTurn = a;
 	}
-	
-	public boolean getLoopAttack(){
+
+	public boolean getLoopAttack() {
 		return loopAttack;
 	}
 
@@ -500,17 +500,13 @@ public class Board implements java.io.Serializable {
 				// Fekete bábujai elfogytak, nyertes: fehér
 				return GameEvents.WINNERWHITE;
 			}
-			if (canPlayerMove(true) && !canPlayerMove(false)) {
-				// Fehér még tud lépni, fekete nmár nem, nyertes: fehér
+			if (!canPlayerMove(false)) {
+				// Fekete már nem tud lépni, nyertes: fehér
 				return GameEvents.WINNERWHITE;
 			}
-			if (!canPlayerMove(true) && canPlayerMove(false)) {
-				// Fekete még tud lépni, fehér nmár nem, nyertes: fekete
+			if (!canPlayerMove(true)) {
+				// Fehér már nem tud lépni, nyertes: fekete
 				return GameEvents.WINNERBLACK;
-			}
-			if (!canPlayerMove(true) && !canPlayerMove(false)) {
-				// Egyik játékos se tud már lépni, nyertes: döntetlen
-				return GameEvents.TIE;
 			}
 		}
 

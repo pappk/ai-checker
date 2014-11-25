@@ -29,6 +29,7 @@ public class ButtonView extends JFrame {
 	protected JLabel errorLabel;
 	protected Color defaultBgColor;
 	protected String previousSource;
+	private ButtonController controller;
 
 	public void highlightCell(Cell aCell) {
 		buttonArray[aCell.getRow()][aCell.getColumn()].setBackground(new Color(
@@ -109,6 +110,7 @@ public class ButtonView extends JFrame {
 				if (s != null) {
 					boolean starter;
 					board.reset();
+					controller.status = GameEvents.KEEPGOING;
 					if (s.equals("Világos"))
 						starter = true;
 					else
@@ -192,10 +194,11 @@ public class ButtonView extends JFrame {
 		colorLabel.setText(board.getWhiteOnTurnLabel());
 	}
 
-	public ButtonView(Board aBoard) {
+	public ButtonView(Board aBoard, ButtonController controller) {
 		super("Checker Game");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
+		this.controller = controller;
 		board = aBoard;
 		buttonArray = new BoardButton[8][8];
 		grid = new JPanel();

@@ -23,7 +23,7 @@ public class ButtonController {
 
 	public ButtonController() {
 		board = new Board(initiater, aiPlayerColor);
-		view = new ButtonView(board);
+		view = new ButtonView(board, this);
 		view.setVisible(true);
 		agent = new Agent(this, false);
 		initiater.addListener(agent);
