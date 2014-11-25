@@ -232,7 +232,7 @@ public class Agent implements AgentsTurnListener {
 	private void nextMove(boolean color) {
 		Movement maxHeuristicMovement = null;
 		if (!actual.getLoopAttack()) {
-			//Szabad lépés esetén
+			// Szabad lépés esetén
 			Vertex startVertex = new Vertex(getNextId(), actual);
 			Graph graph = new Graph(startVertex);
 			getNextMovementGraph(color, actual, graph, startVertex, 3, 0);
@@ -244,8 +244,9 @@ public class Agent implements AgentsTurnListener {
 
 			maxHeuristicMovement = nextMovement;
 		} else {
-			//Ütésorozat esetén
-			maxHeuristicMovement = getNextLoopAttackMovement(actual.getPrecCell(), actual);
+			// Ütésorozat esetén
+			maxHeuristicMovement = getNextLoopAttackMovement(
+					actual.getPrecCell(), actual);
 		}
 		try {
 			controller.handlePlayerMovement(maxHeuristicMovement.getFrom(),
@@ -283,6 +284,12 @@ public class Agent implements AgentsTurnListener {
 						}
 						h += 10 * getAttackPossibility(workingCopy, to);
 						h += 8 * willBeAttacked(workingCopy, to);
+					}		
+					if(willIWin(workingCopy)){
+						h += 1000;
+					}
+					if(willILose(workingCopy)){
+						h -= 1000;
 					}
 				} else {
 					return h;
@@ -338,6 +345,13 @@ public class Agent implements AgentsTurnListener {
 
 				h += 12 * getAttackPossibilityH;
 				h += 20 * willBeAttackedH;
+				
+				if(willIWin(workingCopy)){
+					h += 1000;
+				}
+				if(willILose(workingCopy)){
+					h -= 1000;
+				}
 
 			} catch (GameException e) { // TODO Auto-generated catch block
 				e.printStackTrace();
@@ -600,34 +614,32 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
-	 * Visszatér, hogy a következő lépéssel nyer-e
+	 * Visszatér, hogy az adott állapot nyerést jelent vagy nem
 	 * 
 	 * @param board
-	 * @param from
-	 * @param to
 	 * @return true nyer, false nem
 	 */
-	protected boolean willIWin(Board board, Cell from, Cell to) {
-		try {
-			Board workingCopy = board.getBoardClone();
-			GameEvents status = null;
-			workingCopy.moveFigureFromTo(from, to);
-			while (workingCopy.getLoopAttack() || status == null) {
-				status = workingCopy.moveFigureFromTo(from, to);
-			}
-			if (status == GameEvents.TIE || status == GameEvents.WINNERBLACK) {
-				return true;
-			}
-
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (GameException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	protected boolean willIWin(Board board) {
+		if (board.getFigureCount(!this.color) == 0
+				|| !board.canPlayerMove(!this.color)) {
+			return true;
+		} else {
+			return false;
 		}
-
-		return false;
+	}
+	
+	/**
+	 * Visszatér, hogy az adott állapot vesztést jelent vagy nem
+	 * @param board
+	 * @return true vesztés, false nem
+	 */
+	protected boolean willILose(Board board) {
+		if (board.getFigureCount(this.color) == 0
+				|| !board.canPlayerMove(this.color)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
