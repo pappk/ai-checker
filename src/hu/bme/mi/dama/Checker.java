@@ -26,9 +26,9 @@ public class Checker extends Figure implements java.io.Serializable{
 	@Override
 	public String toString(){
 		if(color == true)
-			return "<html><b><u>V</u></b></html>";
+			return "<html><font color='white' size='10'><b><u>&#8226;</u></b></font></html>";
 		else
-			return "<html><b><u>S</u></b></html>";
+			return "<html><font color='black' size='10'><b><u>&#8226;</u></b></font></html>";
 	}
 	
 	@Override

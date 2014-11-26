@@ -64,9 +64,9 @@ public class Figure implements java.io.Serializable{
 	@Override
 	public String toString() {
 		if (color == true)
-			return "v";
+			return "<html><font color='white' size='10'><b>&#8226;</b></font></html>";
 		else
-			return "s";
+			return "<html><font color='black' size='10'><b>&#8226;</b></font></html>";
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -69,6 +70,7 @@ public class ButtonView extends JFrame {
 				buttonArray[i][j] = new BoardButton(bTxt);
 				buttonArray[i][j].cell = aCell;
 				buttonArray[i][j].setPreferredSize(new Dimension(50, 50));
+				buttonArray[i][j].setMargin(new Insets(0, 0, 0, 0));
 				setDefaultPaint(aCell);
 
 				grid.add(buttonArray[i][j]);
