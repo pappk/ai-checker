@@ -111,8 +111,9 @@ public class Agent implements AgentsTurnListener {
 	 */
 	private Movement getNextLoopAttackMovement(Cell from, Board board) {
 		ArrayList<Movement> possibleNextMoves = new ArrayList<>();
+		Board workingBoard = null;
 		try {
-			Board workingBoard = board.getBoardClone();
+			workingBoard = board.getBoardClone();
 
 			ArrayList<Cell> attackTargetCell = workingBoard
 					.getCellPossibleAttack(from);
@@ -120,12 +121,13 @@ public class Agent implements AgentsTurnListener {
 				possibleNextMoves.add(new Movement(from, cell,
 						attackHeuristica(from, cell, workingBoard)));
 			}
-
-			workingBoard = null;
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		workingBoard = null;
+		
 		if (possibleNextMoves.size() > 1) {
 			return getMaxHeuristic(possibleNextMoves);
 		} else {
@@ -331,12 +333,14 @@ public class Agent implements AgentsTurnListener {
 				h += 15 * isAttackedH;
 				h += 10 * willBeCheckerH;
 				workingCopy.moveFigureFromTo(from, to);
-				getDistanceFromEdgeH = getDistanceFromEdge(workingCopy, to);
-				h += getDistanceFromEdgeH;
+				
+				
 				if (figure != null && figure.isChecker()) {
 					getDistanceFromEnemyH = getDistanceFromEnemy(workingCopy,
 							from, to);
-					h += 2 * getDistanceFromEnemyH;
+					h += 10 * getDistanceFromEnemyH;
+					getDistanceFromEdgeH = getDistanceFromEdge(workingCopy, to);
+					h += getDistanceFromEdgeH;
 				}
 
 				double getAttackPossibilityH = getAttackPossibility(

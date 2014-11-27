@@ -458,8 +458,8 @@ public class Board implements java.io.Serializable {
 	 * @return boolean
 	 */
 	public boolean canPlayerMove(boolean aColor) {
-		if (getFigurePossibleAttack(whiteOnTurn).size() > 0
-				|| getFigurePossibleMove(whiteOnTurn).size() > 0) {
+		if (getFigurePossibleAttack(aColor).size() > 0
+				|| getFigurePossibleMove(aColor).size() > 0) {
 			return true;
 		} else {
 			return false;
@@ -507,13 +507,14 @@ public class Board implements java.io.Serializable {
 				// Fekete bábujai elfogytak, nyertes: fehér
 				return GameEvents.WINNERWHITE;
 			}
-			if (!canPlayerMove(false)) {
-				// Fekete már nem tud lépni, nyertes: fehér
-				return GameEvents.WINNERWHITE;
-			}
-			if (!canPlayerMove(true)) {
-				// Fehér már nem tud lépni, nyertes: fekete
-				return GameEvents.WINNERBLACK;
+			if (!canPlayerMove(whiteOnTurn)) {
+				if(whiteOnTurn){
+					// Fehér már nem tud lépni, nyertes: fekete
+					return GameEvents.WINNERBLACK;
+				} else {
+					// Fekete már nem tud lépni, nyertes: fehér
+					return GameEvents.WINNERWHITE;
+				}
 			}
 		}
 
