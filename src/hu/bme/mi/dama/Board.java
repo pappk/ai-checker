@@ -47,7 +47,7 @@ public class Board implements java.io.Serializable {
 		return loopAttack;
 	}
 	
-	public Cell getPrecCell(){
+	public Cell getPrevCell(){
 		return prevCell;
 	}
 

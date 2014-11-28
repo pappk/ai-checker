@@ -73,8 +73,10 @@ public class Agent implements AgentsTurnListener {
 					ArrayList<Cell> attackTargetCell = workingBoard
 							.getCellPossibleAttack(cell);
 					for (Cell cell2 : attackTargetCell) {
-						possibleNextMoves.add(new Movement(cell, cell2,
-								attackHeuristica(cell, cell2, workingBoard)));
+						possibleNextMoves
+								.add(new Movement(cell, cell2,
+										attackHeuristica(cell, cell2,
+												workingBoard, 0)));
 					}
 				}
 			} else {
@@ -86,7 +88,7 @@ public class Agent implements AgentsTurnListener {
 							.getCellPossibleMove(cell);
 					for (Cell cell2 : moveTargetCell) {
 						possibleNextMoves.add(new Movement(cell, cell2,
-								idleHeuristica(cell, cell2, workingBoard)));
+								idleHeuristica(cell, cell2, workingBoard, 0)));
 					}
 				}
 			}
@@ -119,15 +121,15 @@ public class Agent implements AgentsTurnListener {
 					.getCellPossibleAttack(from);
 			for (Cell cell : attackTargetCell) {
 				possibleNextMoves.add(new Movement(from, cell,
-						attackHeuristica(from, cell, workingBoard)));
+						attackHeuristica(from, cell, workingBoard, 0)));
 			}
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		workingBoard = null;
-		
+
 		if (possibleNextMoves.size() > 1) {
 			return getMaxHeuristic(possibleNextMoves);
 		} else {
@@ -170,7 +172,8 @@ public class Agent implements AgentsTurnListener {
 							.getCellPossibleAttack(cell);
 					for (Cell cell2 : attackTargetCell) {
 						possibleNextMoves.add(new Movement(cell, cell2,
-								attackHeuristica(cell, cell2, workingBoard)));
+								attackHeuristica(cell, cell2, workingBoard,
+										actualLevel)));
 					}
 				}
 			} else {
@@ -182,7 +185,8 @@ public class Agent implements AgentsTurnListener {
 							.getCellPossibleMove(cell);
 					for (Cell cell2 : moveTargetCell) {
 						possibleNextMoves.add(new Movement(cell, cell2,
-								idleHeuristica(cell, cell2, workingBoard)));
+								idleHeuristica(cell, cell2, workingBoard,
+										actualLevel)));
 					}
 				}
 			}
@@ -248,7 +252,7 @@ public class Agent implements AgentsTurnListener {
 		} else {
 			// Ütésorozat esetén
 			maxHeuristicMovement = getNextLoopAttackMovement(
-					actual.getPrecCell(), actual);
+					actual.getPrevCell(), actual);
 		}
 		try {
 			controller.handlePlayerMovement(maxHeuristicMovement.getFrom(),
@@ -268,7 +272,8 @@ public class Agent implements AgentsTurnListener {
 	 * @param to
 	 * @return heurisztika
 	 */
-	private double attackHeuristica(Cell from, Cell to, Board actual) {
+	private double attackHeuristica(Cell from, Cell to, Board actual,
+			int actualLevel) {
 		double h = 0;
 		try {
 			Board workingCopy = actual.getBoardClone();
@@ -286,13 +291,20 @@ public class Agent implements AgentsTurnListener {
 						}
 						h += 10 * getAttackPossibility(workingCopy, to);
 						h += 8 * willBeAttacked(workingCopy, to);
-					}		
-					if(willIWin(workingCopy)){
+					}
+					if (willIWin(workingCopy)) {
 						h += 1000;
 					}
-					if(willILose(workingCopy)){
+					if (willILose(workingCopy)) {
 						h -= 1000;
 					}
+
+					if (actualLevel == 0) {
+						int attackedFiguresCount = getAttackedFiguresCount(
+								workingCopy, this.color);
+						h += 10 * attackedFiguresCount;
+					}
+
 				} else {
 					return h;
 				}
@@ -315,7 +327,8 @@ public class Agent implements AgentsTurnListener {
 	 * @param to
 	 * @return heurisztika
 	 */
-	private double idleHeuristica(Cell from, Cell to, Board actual) {
+	private double idleHeuristica(Cell from, Cell to, Board actual,
+			int actualLevel) {
 		double h = 0;
 		try {
 			Board workingCopy = actual.getBoardClone();
@@ -329,12 +342,11 @@ public class Agent implements AgentsTurnListener {
 				double canProtectOthersH = canProtectOthers(workingCopy, from,
 						to);
 
-				h += 10 * canProtectOthersH;
+				h += 20 * canProtectOthersH;
 				h += 15 * isAttackedH;
 				h += 10 * willBeCheckerH;
 				workingCopy.moveFigureFromTo(from, to);
-				
-				
+
 				if (figure != null && figure.isChecker()) {
 					getDistanceFromEnemyH = getDistanceFromEnemy(workingCopy,
 							from, to);
@@ -349,12 +361,18 @@ public class Agent implements AgentsTurnListener {
 
 				h += 12 * getAttackPossibilityH;
 				h += 20 * willBeAttackedH;
-				
-				if(willIWin(workingCopy)){
+
+				if (willIWin(workingCopy)) {
 					h += 1000;
 				}
-				if(willILose(workingCopy)){
+				if (willILose(workingCopy)) {
 					h -= 1000;
+				}
+
+				if (actualLevel == 0) {
+					int attackedFiguresCount = getAttackedFiguresCount(
+							workingCopy, !this.color);
+					h -= 20 * attackedFiguresCount;
 				}
 
 			} catch (GameException e) { // TODO Auto-generated catch block
@@ -532,6 +550,52 @@ public class Agent implements AgentsTurnListener {
 	}
 
 	/**
+	 * Ütéssorozatban üthető bábuk számával tér vissza egy adott színű játékos
+	 * esetében
+	 * 
+	 * @param board
+	 * @param actualColor
+	 * @return üthető bábuk száma (az összes variációt beleszámolva)
+	 */
+	protected int getAttackedFiguresCount(Board board, boolean actualColor) {
+		int counter = 0;
+
+		ArrayList<Cell> fromCells = board.getFigurePossibleAttack(actualColor);
+		try {
+			Board paralelWorkingCopy = null;
+			for (Cell fromCell : fromCells) {
+				paralelWorkingCopy = board.getBoardClone();
+
+				Cell prevCell = fromCell;
+				ArrayList<Cell> toCells = null;
+				while (toCells == null || toCells.size() > 0) {
+					toCells = paralelWorkingCopy
+							.getCellPossibleAttack(prevCell);
+					for (Cell toCell : toCells) {
+						Board insideParalelWorkingCopy = paralelWorkingCopy
+								.getBoardClone();
+						insideParalelWorkingCopy.moveFigureFromTo(prevCell,
+								toCell);
+						prevCell = toCell;
+						counter++;
+						insideParalelWorkingCopy = null;
+					}
+				}
+				paralelWorkingCopy = null;
+			}
+			paralelWorkingCopy = null;
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return counter;
+	}
+
+	/**
 	 * Visszatér, hogy milyen távol van a bábu attól, hogy dáma legyen.
 	 * 
 	 * @param board
@@ -631,9 +695,10 @@ public class Agent implements AgentsTurnListener {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Visszatér, hogy az adott állapot vesztést jelent vagy nem
+	 * 
 	 * @param board
 	 * @return true vesztés, false nem
 	 */
