@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -29,6 +30,7 @@ public class ButtonView extends JFrame {
 	protected JLabel errorLabel;
 	protected Color defaultBgColor;
 	protected String previousSource;
+	private ButtonController controller;
 
 	public void highlightCell(Cell aCell) {
 		buttonArray[aCell.getRow()][aCell.getColumn()].setBackground(new Color(
@@ -68,6 +70,7 @@ public class ButtonView extends JFrame {
 				buttonArray[i][j] = new BoardButton(bTxt);
 				buttonArray[i][j].cell = aCell;
 				buttonArray[i][j].setPreferredSize(new Dimension(50, 50));
+				buttonArray[i][j].setMargin(new Insets(0, 0, 0, 0));
 				setDefaultPaint(aCell);
 
 				grid.add(buttonArray[i][j]);
@@ -75,7 +78,7 @@ public class ButtonView extends JFrame {
 		}
 		this.add(grid, BorderLayout.CENTER);
 
-		// Az alsÛ st·tusz jelzı be·llÌt·sa
+		// Az als√≥ st√°tusz jelz≈ë be√°ll√≠t√°sa
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.PAGE_AXIS));
 		bottomPanel.add(colorLabel);
 		;
@@ -86,30 +89,31 @@ public class ButtonView extends JFrame {
 		bottomPanel.setPreferredSize(new Dimension(300, 40));
 		this.add(bottomPanel, BorderLayout.SOUTH);
 
-		// Men¸s·v hozz·ad·sa
+		// Men√ºs√°v hozz√°ad√°sa
 		JMenuBar menubar = new JMenuBar();
 		setJMenuBar(menubar);
 		JMenu fileMenu = new JMenu("File");
 		menubar.add(fileMenu);
-		JMenuItem newAction = new JMenuItem("⁄j j·tÈk");
-		//JMenuItem saveAction = new JMenuItem("MentÈs");
-		//JMenuItem loadAction = new JMenuItem("BetˆltÈs");
+		JMenuItem newAction = new JMenuItem("√öj j√°t√©k");
+		//JMenuItem saveAction = new JMenuItem("Ment√©s");
+		//JMenuItem loadAction = new JMenuItem("Bet√∂lt√©s");
 		fileMenu.add(newAction);
 		//fileMenu.addSeparator();
 		//fileMenu.add(saveAction);
 		//fileMenu.add(loadAction);
 
-		// Men¸ esemÈnykezelıje
+		// Men√º esem√©nykezel≈ëje
 		newAction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Object[] possibilities = { "Vil·gos", "SˆtÈt" };
+				Object[] possibilities = { "Vil√°gos", "S√∂t√©t" };
 				String s = (String) JOptionPane.showInputDialog(grid,
-						"A kezdı szÌn be·llÌt·sa:", "Be·llÌt·sok",
+						"A kezd≈ë sz√≠n be√°ll√≠t√°sa:", "Be√°ll√≠t√°sok",
 						JOptionPane.PLAIN_MESSAGE, null, possibilities, 0);
 				if (s != null) {
 					boolean starter;
 					board.reset();
-					if (s.equals("Vil·gos"))
+					controller.status = GameEvents.KEEPGOING;
+					if (s.equals("Vil√°gos"))
 						starter = true;
 					else
 						starter = false;
@@ -160,17 +164,17 @@ public class ButtonView extends JFrame {
 	public void setWinnerLabel(GameEvents status) {
 		switch (status) {
 		case WINNERBLACK:
-			errorLabel.setText("A nyertes a SˆtÈt!");
+			errorLabel.setText("A nyertes a S√∂t√©t!");
 			bottomPanel.setBackground(new Color(0x0000FF));
 			break;
 			
 		case WINNERWHITE:
-			errorLabel.setText("A nyertes a Vil·gos!");
+			errorLabel.setText("A nyertes a Vil√°gos!");
 			bottomPanel.setBackground(new Color(0x0000FF));
 			break;
 			
 		case TIE:
-			errorLabel.setText("Dˆntetlen!");
+			errorLabel.setText("D√∂ntetlen!");
 			bottomPanel.setBackground(new Color(0x0000FF));
 			break;
 		
@@ -192,10 +196,11 @@ public class ButtonView extends JFrame {
 		colorLabel.setText(board.getWhiteOnTurnLabel());
 	}
 
-	public ButtonView(Board aBoard) {
+	public ButtonView(Board aBoard, ButtonController controller) {
 		super("Checker Game");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
+		this.controller = controller;
 		board = aBoard;
 		buttonArray = new BoardButton[8][8];
 		grid = new JPanel();

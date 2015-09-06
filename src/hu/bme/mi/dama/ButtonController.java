@@ -23,7 +23,7 @@ public class ButtonController {
 
 	public ButtonController() {
 		board = new Board(initiater, aiPlayerColor);
-		view = new ButtonView(board);
+		view = new ButtonView(board, this);
 		view.setVisible(true);
 		agent = new Agent(this, false);
 		initiater.addListener(agent);
@@ -47,12 +47,12 @@ public class ButtonController {
 	}
 
 	/**
-	 * F¸ggvÈny, ami lekezel egy lÈpÈst Ès a lÈpÈs hat·s·ra felmer¸lı jelzÈseket
+	 * F√ºggv√©ny, ami lekezel egy l√©p√©st √©s a l√©p√©s hat√°s√°ra felmer√ºl≈ë jelz√©seket
 	 * 
 	 * @param from
-	 *            LÈpÈs innen
+	 *            L√©p√©s innen
 	 * @param to
-	 *            LÈpÈs ide
+	 *            L√©p√©s ide
 	 * @throws GameException 
 	 */
 	public void handlePlayerMovement(Cell from, Cell to) throws GameException {
@@ -68,7 +68,7 @@ public class ButtonController {
 				view.setWinnerLabel(status);
 			} else {
 				if (board.getWhiteOnTurn() == aiPlayerColor) {
-					initiater.yourTurn();
+					initiater.yourTurn(aiPlayerColor);
 				}
 			}
 		} catch (GameException ex) {
@@ -78,9 +78,9 @@ public class ButtonController {
 
 	public void controllClick2(BoardButton b) {
 		if (status == GameEvents.KEEPGOING) {
-			// Hanyadik kattint·s, volt m·r elıtte egy?
+			// Hanyadik kattint√°s, volt m√°r el≈ëtte egy?
 			if (bPrev == null) {
-				// Az elsı kattint·s csak kijelˆl
+				// Az els≈ë kattint√°s csak kijel√∂l
 				if (board.getFigure(b.getCell()) != null
 						&& board.getFigure(b.getCell()).getColor() == board
 								.getWhiteOnTurn()) {
@@ -88,7 +88,7 @@ public class ButtonController {
 					view.highlightCell(bPrev.getCell());
 				}
 			} else {
-				// Ha volt m·r kijelˆlt elsı kattint·s
+				// Ha volt m√°r kijel√∂lt els≈ë kattint√°s
 				if (b.equals(bPrev)) {
 					view.setDefaultPaint(bPrev.getCell());
 					bPrev = null;

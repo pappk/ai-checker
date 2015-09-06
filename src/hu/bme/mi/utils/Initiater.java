@@ -10,9 +10,9 @@ public class Initiater {
         listeners.add(toAdd);
     }
 
-    public void yourTurn() {
+    public void yourTurn(boolean color) {
         // Notify everybody that may be interested.
         for (AgentsTurnListener hl : listeners)
-            hl.yourTurn();
+            hl.yourTurn(color);
     }
 }

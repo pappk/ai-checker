@@ -7,10 +7,14 @@ public class BoardButton extends JButton{
 	
 	public BoardButton(){
 		super();
+		this.setOpaque(true);
+		this.setBorderPainted(false);
 	}
 	
 	public BoardButton(String s){
 		super(s);
+		this.setOpaque(true);
+		this.setBorderPainted(false);
 	}
 	
 	public boolean equal(BoardButton b2){

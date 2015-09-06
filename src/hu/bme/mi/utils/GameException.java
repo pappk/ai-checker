@@ -1,7 +1,5 @@
 package hu.bme.mi.utils;
 
-import com.sun.xml.internal.ws.api.model.ExceptionType;
-
 import hu.bme.mi.utils.ErrorCode.ErrorCodes;
 
 

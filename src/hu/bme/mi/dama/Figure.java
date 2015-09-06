@@ -4,7 +4,7 @@ package hu.bme.mi.dama;
 
 public class Figure implements java.io.Serializable{
 	/*
-	 * false: sötét true: világos
+	 * false: sÃ¶tÃ©t true: vilÃ¡gos
 	 */
 	final public boolean color;
 	private int dir;
@@ -54,7 +54,7 @@ public class Figure implements java.io.Serializable{
 	}
 	
 	public boolean equals(Figure fig) {
-		if(this.getId() == fig.getId()){
+		if(fig != null && this.getId() == fig.getId()){
 			return true;
 		} else {
 			return false;
@@ -64,10 +64,16 @@ public class Figure implements java.io.Serializable{
 	@Override
 	public String toString() {
 		if (color == true)
-			return "v";
+			return "<html><font color='white' size='10'><b>&#8226;</b></font></html>";
 		else
-			return "s";
+			return "<html><font color='black' size='10'><b>&#8226;</b></font></html>";
 	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return new Figure(getId(), getColor());
+	}
+	
 	
 	
 }
