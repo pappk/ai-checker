@@ -1,6 +1,6 @@
 Basic AI Checker game
 =======
-BUTE - Department of Measurement and Information Systems - Artificial Intelligence - Basic checker game
+BUTE - Department of Measurement and Information Systems - Artificial Intelligence - Basic AI checker game
 (BME - MIT Mesterséges Intelligencia - Dáma játék)
 
 This code was made for a university project for the subject Artificial Intelligence. The project duration was one semester long and the active develepoment was finished for now.
