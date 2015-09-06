@@ -8,4 +8,5 @@ This code was made for a university project for the subject Artificial Intellige
 The goal was a basic ai for checker game. The code can separete for two component:
  * Checker board game framework
  * AI player
-A board game framework was design for local multiplayer compatible feature. The AI player imitates that it is a real player. So th AI uses the same interface that the real player.
+ 
+The board game framework was design for local multiplayer compatible feature. The AI player imitates that it is a real player. So th AI uses the same interface that the real player.
